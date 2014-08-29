@@ -26,32 +26,10 @@ function sendRequest(){
 };
 
 function visualize_query(geojson){
+		var selectedFeature, selectControl;
 		var featurecollection = JSON.parse(geojson);
 		var geojson_format = new OpenLayers.Format.GeoJSON();
 		var vector_layer = new OpenLayers.Layer.Vector("rivers", {
-				eventListeners:{
-						'featureselected':function(evt){
-								var feature = evt.feature;
-								var popup = new OpenLayers.Popup.FramedCloud("chicken",
-																			 feature.geometry.getBounds().getCenterLonLat(),
-																			 null,
-																			 "<div style='font-size:.8em'>ID: " + feature.attributes.id
-																			 +"<br>NAME: " 
-																			 + feature.attributes.number
-																			 +"<br>rp_class: " 
-																			 + feature.attributes.rp_class+ "</div>",
-																			 null, true
-																			);
-																			feature.popup = popup;
-																			map.addPopup(popup);
-						},
-						'featureunselected':function(evt){
-								var feature = evt.feature;
-								map.removePopup(feature.popup);
-								feature.popup.destroy();
-								feature.popup = null;
-						}
-				},
 				styleMap:river_styles 
 		});
 
@@ -59,27 +37,38 @@ function visualize_query(geojson){
 		vector_layer.addFeatures(geojson_format.read(featurecollection));
 
 		selectControl = new OpenLayers.Control.SelectFeature(
-				[vector_layer],
+				vector_layer,
 				{
-						clickout: false, toggle: false, multiple: false, hover: true,
+						clickout: false, toggle: true, multiple: false, hover: false,
 						toggleKey: "ctrlKey", // ctrl key removes from selection
-						multipleKey: "shiftKey" // shift key adds to selection
+						multipleKey: "shiftKey", box: true, // shift key adds to selection
+						onSelect: onFeatureSelect, // will be called on feature select
+						onUnselect: onFeatureUnselect // will be called on feature unselect
 				}
 		);
+
 		map.addControl(selectControl);
 		selectControl.activate();
 
-		vector_layer.events.on({
-				"featureselected": function(e) {
-						showStatus("selected feature " +e.feature.attributes.name+ " on Vector Layer 1");
-				},
-				"featureunselected": function(e) {
-						showStatus("unselected feature "+e.feature.attributes.name+" on Vector Layer 1");
-				}
-		});
+		function onFeatureSelect(feature) {
+				popup = new OpenLayers.Popup.FramedCloud("popup", 
+														 feature.geometry.getBounds().getCenterLonLat(),
+														 null,
+														 "<div style='font-size:.8em'>ID: " + feature.attributes.id
+														 +"<br>NAME: " 
+														 + feature.attributes.number
+														 +"<br>rp_class: " 
+														 + feature.attributes.rp_class+ "</div>",
+														 null, true, onPopupClose);
+				 feature.popup = popup;
+				 map.addPopup(popup, exclusive=true);
+		};
+		function onFeatureUnselect(feature) {
+				map.removePopup(feature.popup);
+				feature.popup.destroy();
+				feature.popup = null;
+		};
+		function onPopupClose(evt) {
+				selectControl.unselectAll();
+		}
 };
-
-function showStatus(text) {
-		document.getElementById("status").innerHTML = text;            
-};
-
