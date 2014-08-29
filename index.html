@@ -4,180 +4,48 @@
 		<!-- <meta name="viewport" content="width=device&#45;width, initial&#45;scale=1.0, maximum&#45;scale=1.0, user&#45;scalable=0"> -->
 		<script src="http://openlayers.org/api/OpenLayers.js"></script>
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js" ></script>
-		<script src="./javascript/rickshaw/vendor/d3.v3.js" ></script>
-		<script src="./javascript/rickshaw/rickshaw.min.js" ></script>
-		<script src="./javascript/rickshaw/rickshaw.js" ></script>
+
+		<script src="http://openlayers.org/api/OpenLayers.js"></script>
+
+		<link rel="stylesheet" href="./css/settings.css">
+
 		<!-- <script src="./javascript/event_handlers.js" ></script> -->
 		<script src="./javascript/layer_styles.js" ></script>
+		<!-- <script src="./javascript/base_java_geoext.js" ></script> -->
 		<script src="./javascript/base_java.js" ></script>
-		<script>
-			function showUser(str){
-				var xmlhttp = false;
-				var self = this;
-
-				if (str=="") {
-					document.getElementById("txtHint").innerHTML="";
-					return;
-				} 
-				if (window.XMLHttpRequest) {
-					// code for IE7+, Firefox, Chrome, Opera, Safari
-					xmlhttp=new XMLHttpRequest();
-				} else { // code for IE6, IE5
-					xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-				}
-				xmlhttp.onreadystatechange=function() {
-					if (xmlhttp.readyState==4 && xmlhttp.status==200) {
-						document.getElementById("txtHint").innerHTML=xmlhttp.responseText;
-						var geojson=xmlhttp.responseText;
-						visualize_query(geojson);
-					};
-				};
-				qstr=getquerystring();
-				xmlhttp.open("GET", "../cgi-bin/get_proj.py?"+qstr,true);
-				xmlhttp.send(null);
-			};
-
-			function getquerystring() {
-				form = document.forms['proj'];
-				word = form.users.value;
-				qstr = 'w=' + escape(word);  // NOTE: no '?' before querystring
-				return qstr;
-			};
-
-			function visualize_query(geojson){
-				featurecollection = JSON.parse(geojson);
-				var geojson_format = new OpenLayers.Format.GeoJSON();
-				var vector_layer = new OpenLayers.Layer.Vector("gauges", {
-					eventListeners:{
-					'featureselected':function(evt){
-						var feature = evt.feature;
-						var popup = new OpenLayers.Popup.FramedCloud("popup",
-								 feature.geometry.getBounds().getCenterLonLat(),
-								 null,
-								 "<div style='font-size:.8em'>ID: " + feature.attributes.id
-								 +"<br>NAME: " 
-								 + feature.attributes.name+"</div>",
-								 null, true 
-							);
-							feature.popup = popup;
-							map.addPopup(popup);
-				},
-				'featureunselected':function(evt){
-						var feature = evt.feature;
-						map.removePopup(feature.popup);
-						feature.popup.destroy();
-						feature.popup = null;
-						}
-					},
-					styleMap: myStyles
-			});
-
-
-				map.addLayer(vector_layer);
-				vector_layer.addFeatures(geojson_format.read(featurecollection));
-
-				selectControl = new OpenLayers.Control.SelectFeature(
-					[vector_layer],
-					{
-						clickout: false, toggle: false, multiple: false, hover: true,
-						toggleKey: "ctrlKey", // ctrl key removes from selection
-						multipleKey: "shiftKey" // shift key adds to selection
-					}
-				);
-
-				map.addControl(selectControl);
-				selectControl.activate();
-
-				vector_layer.events.on({
-					"featureselected": function(e) {
-						showStatus("selected feature " +e.feature.attributes.name+ " on Vector Layer 1");
-					},
-					"featureunselected": function(e) {
-						showStatus("unselected feature "+e.feature.attributes.name+" on Vector Layer 1");
-					}
-				});
-
-			};
-
-			function showStatus(text) {
-				document.getElementById("status").innerHTML = text;            
-			};
-
-			$(function() {
-
-				if (window.XMLHttpRequest) {
-					// code for IE7+, Firefox, Chrome, Opera, Safari
-					xmlhttp=new XMLHttpRequest();
-				} else { // code for IE6, IE5
-					xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-				}
-				xmlhttp.onreadystatechange=function() {
-					if (xmlhttp.readyState==4 && xmlhttp.status==200) {
-						ts_data=xmlhttp.responseText;
-						document.getElementById("chart").innerHTML=ts_data;
-						graph = new Rickshaw.Graph({
-							element: document.querySelector("#chart"), 
-							width: 500, 
-							height: 200, 
-							series: [{
-								color: 'steelblue',
-								data: JSON.parse(ts_data)
-							}]
-						});
-
-						var x_axis = new Rickshaw.Graph.Axis.Time({ graph: graph });
-						var y_axis = new Rickshaw.Graph.Axis.Y({
-							graph: graph,
-							orientation: 'left',
-							tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
-							element: document.getElementById('y_axis'),
-						});
-
-						graph.render();
-					};
-				};
-				xmlhttp.open("GET", "../cgi-bin/get_ts.py?",true);
-				xmlhttp.send(null);
-
-			})
-		</script>
+		<script src="./javascript/postgis_vis.js" ></script>
+		<!-- <script src="./javascript/rs_func.js" ></script> -->
+		<link rel="stylesheet" href="//code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+		<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+		<script src="//code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
 
 
 	</head>
 	<body>
-		<form name='proj'>
-			<select name="users" onchange="showUser(this.value)">
-				<option selected="selected">Select a project:</option>
-				<option value="1">"europart"</option>
-			</select>
-		</form>
-		<br>
-		<div id="txtHint"><b>GEOJSON string will be listed here.</b></div>
-		<div id="status"><b>Vector properties wil be liste here</b></div>
-		<div style="width:50%; height:50%" id="map"></div>
 		<style>
-			#chart_container {
-				position: relative;
-				font-family: Arial, Helvetica, sans-serif;
-			}
-			#chart {
-				position: relative;
-				left: 40px;
-			}
-			.rickshaw_graph .y_ticks {
-				left: 0;
-			}
-			#y_axis {
-				position: absolute;
-				top: 0;
-				bottom: 0;
-				width: 40px;
+			.map {
+				height: 400px;
+				width: 100%;
 			}
 		</style>
-		<div id="chart_container">
-			<div id="y_axis"></div>
-			<div id="chart"></div>
-		</div>
 
+		<div>
+			<div id="map" class="map_box"></div>
+			<div name="date_range" onchange="sendRequest()" class="date_box">
+				<h3> SELECT the period of interest </h3>
+				<label for="from">From</label>
+				<input type="text" id="start_date" name="start_date">
+				<label for="to">to</label>
+				<input type="text" id="end_date" name="end_date">
+			</div>
+			<!-- <form name='proj'> -->
+			<!-- 	<select name="users" onchange="showUser(this.value)"> -->
+			<!-- 		<option selected="selected">Select a project:</option> -->
+			<!-- 		<option value="1">"europart"</option> -->
+			<!-- 	</select> -->
+			<!-- </form> -->
+			<!-- <div id="status"><b>Vector properties wil be liste here</b></div> -->
+			<!-- <div id="txtHint"><b>CGI output will go here.</b></div> -->
+		</div>
 	</body>
 </html>

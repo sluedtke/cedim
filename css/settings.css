@@ -1,0 +1,15 @@
+#map {
+		height: 700px;
+		width: 700px;
+		float: left;
+		padding: 20px;
+}
+
+.date_box {
+		height: 800px;
+		width: 400px;
+		margin-left: 800px;
+		padding: 20px;
+		text-align: center;
+}
+
