@@ -44,7 +44,7 @@ $(function(){
 		};
 
 		gauge = 'query=gauge';
-		xmlhttp.open("GET", "../cgi-bin/get_base.py?"+gauge,true);
+		xmlhttp.open("GET", "./cgi-bin/get_base.py?"+gauge,true);
 		xmlhttp.send(null);
 });
 
@@ -76,7 +76,7 @@ $(function(){
 				};
 		};
 		catchment='query=catch';
-		xmlhttp.open("GET", "../cgi-bin/get_base.py?"+catchment,true);
+		xmlhttp.open("GET", "./cgi-bin/get_base.py?"+catchment,true);
 		xmlhttp.send(null);
 });
 //

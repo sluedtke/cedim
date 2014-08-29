@@ -21,7 +21,7 @@ function sendRequest(){
 		}
 		// xmlhttp.open("GET","get_proj.php?q="+str,true);
 		qstr=getdatestring();
-		xmlhttp.open("GET", "../cgi-bin/rtp.py?"+qstr,true);
+		xmlhttp.open("GET", "./cgi-bin/rtp.py?"+qstr,true);
 		xmlhttp.send();
 };
 
