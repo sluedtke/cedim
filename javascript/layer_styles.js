@@ -1,36 +1,12 @@
-river_styles = new OpenLayers.StyleMap({ 
-		"default": new OpenLayers.Style({ 
-				// fillColor: "${getColor}",                         
-				// fillColor: "${fillcolor}",
-				// strokeColor: "#00FF01", 
-				strokeColor: "${getColor}",
-				// lineColor: "${getColor}",
-				strokeWidth: 2,
-				fillOpacity: 0.5
-				// label: "${name}",
-				// pointRadius: "${id}"
-				// pointRadius: 12},
-		},
-				{
-                context: {
-                    getColor : function (feature) {
-                        // return feature.attributes.id > 1 ? '#800026' :
-                        //        feature.attributes.id > 2 ? '#BD0026' :
-                        //        feature.attributes.id > 3 ? '#FED976' :
-                                                                    // '#FFEDA0' ;
-                       return feature.attributes.rp_class > 0 ? '#800026' :
-							   feature.attributes.rp_class > 1 ? '#800026' :
-                               feature.attributes.rp_class > 2 ? '#BD0026' :
-                               feature.attributes.rp_class > 3 ? '#FED976' :
-                                                                    '#FFEDA0' ;
-                    }
-                }
-		}), 
-		"select": new OpenLayers.Style({
-                    // fillColor: "#FF0000",
-                    strokeColor: "#3399ff"
-		})
-});
+river_styles = new OpenLayers.StyleMap({});
+
+var river_default={
+  0: {strokeColor: colorbrewer.RdYlGn[4][3], strokeWidth: 2},
+  1: {strokeColor: colorbrewer.RdYlGn[4][2], strokeWidth: 2},
+  2: {strokeColor: colorbrewer.RdYlGn[4][1], strokeWidth: 2},
+  3: {strokeColor: colorbrewer.RdYlGn[4][0], strokeWidth: 2}
+}
+river_styles.addUniqueValueRules("default", "rp_class", river_default);
 
 admin_styles = new OpenLayers.StyleMap({ 
 		"default": new OpenLayers.Style({ 

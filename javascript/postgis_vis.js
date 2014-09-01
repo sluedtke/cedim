@@ -15,15 +15,18 @@ function sendRequest(){
 		xmlhttp.onreadystatechange=function() {
 				if (xmlhttp.readyState==4 && xmlhttp.status==200) {
 						// document.getElementById("txtHint").innerHTML=xmlhttp.responseText;
+						$('#loadingmessage').hide();
 						var geojson=xmlhttp.responseText;
 						visualize_query(geojson);
 				}
 		}
 		// xmlhttp.open("GET","get_proj.php?q="+str,true);
+		$('#loadingmessage').show();
 		qstr=getdatestring();
 		xmlhttp.open("GET", "./cgi-bin/rtp.py?"+qstr,true);
 		xmlhttp.send();
 };
+
 
 function visualize_query(geojson){
 		var selectedFeature, selectControl;
@@ -41,7 +44,7 @@ function visualize_query(geojson){
 				{
 						clickout: false, toggle: true, multiple: false, hover: false,
 						toggleKey: "ctrlKey", // ctrl key removes from selection
-						multipleKey: "shiftKey", box: true, // shift key adds to selection
+						multipleKey: "shiftKey", box: false, // shift key adds to selection
 						onSelect: onFeatureSelect, // will be called on feature select
 						onUnselect: onFeatureUnselect // will be called on feature unselect
 				}

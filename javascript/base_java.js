@@ -98,18 +98,21 @@ $(function() {
 		$( "#start_date" ).datepicker({
 				defaultDate: "-2w",
 				changeMonth: true,
-				numberOfMonths: 3,
-				maxDate: currentDate,
+				numberOfMonths: 2,
+				maxDate: "-2d",
+				minDate: "-1w",
 				dateFormat: 'yy-mm-dd',
 				onClose: function( selectedDate ) {
 						$( "#end_date" ).datepicker( "option", "minDate", selectedDate );
 				}
 		});
+
 		$( "#end_date" ).datepicker({
 				changeMonth: true,
-				defaultDate: currentDate,
-				numberOfMonths: 3,
-				maxDate: currentDate,
+				defaultDate: "-2d",
+				numberOfMonths: 2,
+				maxDate: "-2d",
+				minDate: "-2d",
 				dateFormat: 'yy-mm-dd',
 				onClose: function( selectedDate ) {
 						$( "#from_date" ).datepicker( "option", "maxDate", selectedDate );
