@@ -35,10 +35,44 @@
 				<label for="to">to</label>
 				<input type="text" id="end_date" name="end_date">
 				</br>
+				</br>
 				<button type="button" onclick="sendRequest()">Spin the Wheel!</button>
+				</br>
 				<div id='loadingmessage' style='display:none'>
 					<img src='img/ajax-loader.gif'/>
 				</div>
+				</br>
+				<table id="legend_table">
+					<thead>
+						<tr>
+							<th>return period</th>
+							<th>class</th>
+							<th>color</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>1</td>
+							<td>0</td>
+							<td bgcolor="#1a964"></td>
+						</tr>
+						<tr>
+							<td>1.5</td>
+							<td>1</td>
+							<td bgcolor="#a6d96a"></td>
+						</tr>
+						<tr>
+							<td>2</td>
+							<td>2</td>
+							<td bgcolor="#fdae61"></td>
+						</tr>
+						<tr>
+							<td>5</td>
+							<td>3</td>
+							<td bgcolor="#d7191c"></td>
+						</tr>
+					</tbody>
+				</table>
 			</div>
 		</div>
 	</body>
