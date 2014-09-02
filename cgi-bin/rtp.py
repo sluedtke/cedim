@@ -2,7 +2,7 @@
 ######################################################################
 #       Author: Kai Schroeter
 #       Created: Tuesday 26 August 2014 
-#       Last modified: Thursday 28 August 2014 16:10:40 CEST
+#       Last modified: Tuesday 02 September 2014 14:22:03 CEST
 #############################       PURPOSE        ######################
 #
 #    evaluate online gauge data with regard to return period
@@ -58,92 +58,69 @@ cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
 # constrain the evaluation period to three weeks before current date
 
-# start = date.today() - timedelta(days=21)
-# end = date.today() 
-def classify_qmax(q, gauge):
-    SQL = cur.mogrify("SELECT return_periods.tn_1_11, return_periods.tn_1_5,  return_periods.tn_2, return_periods.tn_5 FROM public.ccm2_rivers, public.tn_estimation, public.return_periods WHERE \
-    CAST(ccm2_rivers.number AS BIGINT) = tn_estimation.fid_gauge AND tn_estimation.id_tn_method = return_periods.fid_tn_method AND \
-    ccm2_rivers.number = %s AND tn_estimation.tn_baseperiod = %s AND tn_estimation.tn_method_code = %s ",(item, '3', '6'))
+# start = date.today() - timedelta(days=7)
+# end = date.today() - timedelta(days=2)
+
+def classify_qmax(SQL, target_list):
     cur.execute(SQL)
-    rps = cur.fetchall()
-    rps = rps[0]
-    if q <= rps[0]:
-        rp_class = 0
-    elif q > rps[0] and q <= rps[1]:
-        rp_class = 1
-    elif q > rps[1] and q <= rps[2]:
-        rp_class = 2
-    elif q > rps[2] and q <= rps[3]:
-        rp_class = 3
-    elif q > rps[3] :
-        rp_class = 4
-    else:
-        rp_class = 'NaN'
-    return rp_class
-
-
-def get_qmax(item,start, end):
-    SQL= cur.mogrify("SELECT  MAX(ts_data_online.value) FROM public.ccm2_rivers, \
-    public.ts_objects, public.ts_data_online WHERE CAST(ccm2_rivers.number AS \
-    BIGINT) = ts_objects.fid_gauge AND ts_objects.id_time_series = \
-    ts_data_online.fid_time_series AND ccm2_rivers.number = %s AND \
-    ts_objects.variable = %s AND ts_data_online.time_stamp >= %s AND ts_data_online.time_stamp <= %s ", \
-    (item, 'Q', start, end))
-
-    cur.execute(SQL)
-    qmax = cur.fetchall()
-    qmax = qmax[0]
-    qmax = qmax[0]
-    return qmax
-
-#select gauges to be processed
-SQL = cur.mogrify("SELECT number FROM ccm2_rivers")
-cur.execute(SQL)
-
-gauges = cur.fetchall()
-gauge_attributes=[]
-
-#loop gauges to determine max_q in relevant period and classify according to rp
-for item in gauges:
-    item = item['number']
-    qmax = get_qmax(item, start, end)
-
-    if qmax:
-        rp_class = classify_qmax(qmax, item)
+    rps_all = cur.fetchall()
+    for rps in rps_all:
+        q=rps['q_max']
+        if q <= rps[0]:
+            rp_class = 0
+        elif q > rps[0] and q <= rps[1]:
+            rp_class = 1
+        elif q > rps[1] and q <= rps[2]:
+            rp_class = 2
+        elif q > rps[2] and q <= rps[3]:
+            rp_class = 3
+        elif q > rps[3] :
+            rp_class = 4
+        else:
+            rp_class = 'NaN'
 
         #store results in dictionary
-        attr = {'number':item, 'qmax':qmax, 'rp_class':rp_class}
-        gauge_attributes.append(attr)
+        attr = {'number': rps['gauges'], 'qmax':q, 'rp_class':rp_class,
+                'geom': rps['geom']}
+        target_list.append(attr)
+
+    return target_list
 
 
-sql_river="SELECT gid AS id, number, ST_AsGeoJSON(ST_TRANSFORM(geom, 900913)) AS \
-geom FROM ccm2_rivers;"
+SQL='\
+WITH \
+temp_gauges AS ( \
+SELECT gid AS id, number AS gauge, ST_AsGeoJSON(ST_TRANSFORM(geom, 900913)) AS geom \
+FROM  \
+ ccm2_rivers \
+), \
+temp_max AS ( \
+SELECT MAX(ts_data_online.value) AS q_max, ccm2_rivers.number AS gauges, temp_gauges.id, temp_gauges.geom \
+FROM \
+ public.ccm2_rivers, public.ts_objects, public.ts_data_online, temp_gauges \
+WHERE \
+ CAST(ccm2_rivers.number AS BIGINT) = ts_objects.fid_gauge AND \
+ ts_objects.id_time_series = ts_data_online.fid_time_series AND \
+ ccm2_rivers.number = temp_gauges.gauge AND \
+ ts_objects.variable = \'Q\' AND \
+ ts_data_online.time_stamp >= \'2014-08-21 13:00:00.00\' AND  \
+ ts_data_online.time_stamp <= \'2014-08-28 13:00:00.00\'  \
+GROUP BY ccm2_rivers.number, temp_gauges.id, temp_gauges.geom \
+) \
+\
+SELECT return_periods.tn_1_11, return_periods.tn_1_5,  return_periods.tn_2, return_periods.tn_5, temp_max.gauges, temp_max.q_max, temp_max.geom \
+FROM  \
+ public.ccm2_rivers, public.tn_estimation, public.return_periods, temp_max \
+WHERE  \
+ CAST(ccm2_rivers.number AS BIGINT) = tn_estimation.fid_gauge AND \
+ tn_estimation.id_tn_method = return_periods.fid_tn_method AND \
+ ccm2_rivers.number = temp_max.gauges AND \
+ tn_estimation.tn_baseperiod = \'3\' AND \
+ tn_estimation.tn_method_code = \'6\';\
+'
 
-sql_gauge="SELECT gid AS id, name, ST_AsGeoJSON(ST_TRANSFORM(geom, 900913)) AS \
-geom FROM pegel_tbas;" 
-
-# data="2"
-
-# cur.execute(sql_poly, data)
-# cur.execute(sql_gauge)
-cur.execute(sql_river)
-rows=cur.fetchall()
-
-rows_new=[]
-for row in rows:
-    temp=dict(row)
-    rows_new.append(temp)
-
-# http://stackoverflow.com/questions/13975021/merge-join-lists-of-dictionaries-based-on-a-common-value-in-python
-from collections import defaultdict
-from itertools import chain
-
-collector = defaultdict(dict)
-
-for collectible in chain(gauge_attributes, rows_new):
-    collector[collectible['number']].update(collectible.iteritems())
-
-temp=list(collector.itervalues())
+gauge_attributes=[]
+temp=classify_qmax(SQL, gauge_attributes)
 
 ################A#######################################################
 def create_featuresCollection(query):
