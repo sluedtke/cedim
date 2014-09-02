@@ -2,7 +2,7 @@
 ######################################################################
 #       Author: Kai Schroeter
 #       Created: Tuesday 26 August 2014 
-#       Last modified: Tuesday 02 September 2014 15:20:28 CEST
+#       Last modified: Tuesday 02 September 2014 21:41:41 CEST
 #############################       PURPOSE        ######################
 #
 #    evaluate online gauge data with regard to return period
@@ -13,16 +13,17 @@ import psycopg2
 import psycopg2.extras
 import cgi
 import sys, os
-import cgitb; cgitb.enable()  # for troubleshooting
+import cgitb
 from datetime import date, timedelta
 import pdb
 
-# form=cgi.FieldStorage()
+cgitb.enable()  # for troubleshooting
+form=cgi.FieldStorage()
 
 
 # # Get data from fields
-# start=form['start_date'].value
-# end=form['end_date'].value
+start=form['start_date'].value
+end=form['end_date'].value
 #
 # adding the absolute path of this file to the python search path, so we can
 # keep all the other files via symbolic links 
@@ -58,16 +59,14 @@ conn = connect(db_name, user, pwd, host)
 cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
 # constrain the evaluation period to three weeks before current date
+# start = date.today() - timedelta(days=7)
+# end = date.today() - timedelta(days=2)
 
-start = date.today() - timedelta(days=7)
-end = date.today() - timedelta(days=2)
-
-SQL='\
-WITH \
+SQL='WITH \
 temp_gauges AS ( \
 SELECT gid AS id, number AS gauge, ST_AsGeoJSON(ST_TRANSFORM(geom, 900913)) AS geom \
 FROM  \
- pegel_tbas \
+ ccm2_rivers\
 ), \
 temp_max AS ( \
 SELECT MAX(ts_data_online.value) AS q_max, ccm2_rivers.number AS gauges, temp_gauges.id, temp_gauges.geom \
@@ -76,13 +75,13 @@ FROM \
 WHERE \
  CAST(ccm2_rivers.number AS BIGINT) = ts_objects.fid_gauge AND \
  ts_objects.id_time_series = ts_data_online.fid_time_series AND \
- CAST(ccm2_rivers.number AS BIGINT) = temp_gauges.gauge AND \
+ ccm2_rivers.number = temp_gauges.gauge AND \
  ts_objects.variable = \'Q\' AND \
  ts_data_online.time_stamp >= %s AND  \
- ts_data_online.time_stamp <= %s \
+ ts_data_online.time_stamp <= %s AND \
+ ts_data_online.value IS NOT NULL \
 GROUP BY ccm2_rivers.number, temp_gauges.id, temp_gauges.geom \
 ) \
-\
 SELECT return_periods.tn_1_11, return_periods.tn_1_5,  return_periods.tn_2, return_periods.tn_5, temp_max.gauges, temp_max.q_max, temp_max.geom \
 FROM  \
  public.ccm2_rivers, public.tn_estimation, public.return_periods, temp_max \
@@ -91,8 +90,7 @@ WHERE  \
  tn_estimation.id_tn_method = return_periods.fid_tn_method AND \
  ccm2_rivers.number = temp_max.gauges AND \
  tn_estimation.tn_baseperiod = \'3\' AND \
- tn_estimation.tn_method_code = \'6\';\
-'
+tn_estimation.tn_method_code = \'6\';'
 
 
 def classify_qmax(SQL, target_list, start, end):
@@ -112,13 +110,16 @@ def classify_qmax(SQL, target_list, start, end):
         elif q > rps[3] :
             rp_class = 4
         else:
-            rp_class = 'NaN'
+            rp_class = 'NULL'
+            q = 'NULL'
+
+        # if rps['gauges'] == "26500100":
 
         #store results in dictionary
         # pdb.set_trace()
-        rps=dict(rps)
+        # rps=dict(rps)
         attr = {'number': rps['gauges'], 'qmax':q, 'rp_class':rp_class,
-                'geom': rps['geom']}
+                'geom': json.loads(rps['geom'])}
         target_list.append(attr)
 
     return target_list
@@ -130,7 +131,8 @@ temp=classify_qmax(SQL, gauge_attributes, start, end)
 def create_featuresCollection(query):
     features=[]
     for query_row in query:
-        geom=json.loads(query_row['geom'])
+        # geom=json.loads(query_row['geom'])
+        geom=query_row['geom']
         col_list=query_row.keys()
         # get rid of the geom column
         col_list=[elem for elem in col_list if elem != "geom"]
@@ -140,7 +142,7 @@ def create_featuresCollection(query):
             props[key]=query_row[key]
 
         feature={'type' : 'Feature',
-                'geometry': json.dumps(geom),
+                'geometry': geom,
                 'properties': props,
                 }
         features.append(feature)
@@ -149,7 +151,6 @@ def create_featuresCollection(query):
         'features': 
             features
         }
-
     feat_coll=json.dumps(feat_coll)
     return(feat_coll)
 ################A#######################################################
@@ -157,5 +158,4 @@ def create_featuresCollection(query):
 geo_str=create_featuresCollection(temp)
 print "Content-type: text/javascript\n\n";
 print geo_str
-
 
