@@ -16,7 +16,7 @@ function sendRequest(){
 				if (xmlhttp.readyState==4 && xmlhttp.status==200) {
 						// document.getElementById("txtHint").innerHTML=xmlhttp.responseText;
 						$('#loadingmessage').hide();
-						geojson=xmlhttp.responseText;
+						var geojson=xmlhttp.responseText;
 						visualize_query(geojson);
 				}
 		}
