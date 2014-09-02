@@ -2,7 +2,7 @@
 ######################################################################
 #       Author: Kai Schroeter
 #       Created: Tuesday 26 August 2014 
-#       Last modified: Tuesday 02 September 2014 14:22:03 CEST
+#       Last modified: Tuesday 02 September 2014 15:20:28 CEST
 #############################       PURPOSE        ######################
 #
 #    evaluate online gauge data with regard to return period
@@ -15,14 +15,15 @@ import cgi
 import sys, os
 import cgitb; cgitb.enable()  # for troubleshooting
 from datetime import date, timedelta
+import pdb
 
-form=cgi.FieldStorage()
+# form=cgi.FieldStorage()
 
 
-# Get data from fields
-start=form['start_date'].value
-end=form['end_date'].value
-
+# # Get data from fields
+# start=form['start_date'].value
+# end=form['end_date'].value
+#
 # adding the absolute path of this file to the python search path, so we can
 # keep all the other files via symbolic links 
 # sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__))))
@@ -58,10 +59,44 @@ cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
 # constrain the evaluation period to three weeks before current date
 
-# start = date.today() - timedelta(days=7)
-# end = date.today() - timedelta(days=2)
+start = date.today() - timedelta(days=7)
+end = date.today() - timedelta(days=2)
 
-def classify_qmax(SQL, target_list):
+SQL='\
+WITH \
+temp_gauges AS ( \
+SELECT gid AS id, number AS gauge, ST_AsGeoJSON(ST_TRANSFORM(geom, 900913)) AS geom \
+FROM  \
+ pegel_tbas \
+), \
+temp_max AS ( \
+SELECT MAX(ts_data_online.value) AS q_max, ccm2_rivers.number AS gauges, temp_gauges.id, temp_gauges.geom \
+FROM \
+ public.ccm2_rivers, public.ts_objects, public.ts_data_online, temp_gauges \
+WHERE \
+ CAST(ccm2_rivers.number AS BIGINT) = ts_objects.fid_gauge AND \
+ ts_objects.id_time_series = ts_data_online.fid_time_series AND \
+ CAST(ccm2_rivers.number AS BIGINT) = temp_gauges.gauge AND \
+ ts_objects.variable = \'Q\' AND \
+ ts_data_online.time_stamp >= %s AND  \
+ ts_data_online.time_stamp <= %s \
+GROUP BY ccm2_rivers.number, temp_gauges.id, temp_gauges.geom \
+) \
+\
+SELECT return_periods.tn_1_11, return_periods.tn_1_5,  return_periods.tn_2, return_periods.tn_5, temp_max.gauges, temp_max.q_max, temp_max.geom \
+FROM  \
+ public.ccm2_rivers, public.tn_estimation, public.return_periods, temp_max \
+WHERE  \
+ CAST(ccm2_rivers.number AS BIGINT) = tn_estimation.fid_gauge AND \
+ tn_estimation.id_tn_method = return_periods.fid_tn_method AND \
+ ccm2_rivers.number = temp_max.gauges AND \
+ tn_estimation.tn_baseperiod = \'3\' AND \
+ tn_estimation.tn_method_code = \'6\';\
+'
+
+
+def classify_qmax(SQL, target_list, start, end):
+    SQL=cur.mogrify(SQL, (start, end))
     cur.execute(SQL)
     rps_all = cur.fetchall()
     for rps in rps_all:
@@ -80,47 +115,16 @@ def classify_qmax(SQL, target_list):
             rp_class = 'NaN'
 
         #store results in dictionary
+        # pdb.set_trace()
+        rps=dict(rps)
         attr = {'number': rps['gauges'], 'qmax':q, 'rp_class':rp_class,
                 'geom': rps['geom']}
         target_list.append(attr)
 
     return target_list
 
-
-SQL='\
-WITH \
-temp_gauges AS ( \
-SELECT gid AS id, number AS gauge, ST_AsGeoJSON(ST_TRANSFORM(geom, 900913)) AS geom \
-FROM  \
- ccm2_rivers \
-), \
-temp_max AS ( \
-SELECT MAX(ts_data_online.value) AS q_max, ccm2_rivers.number AS gauges, temp_gauges.id, temp_gauges.geom \
-FROM \
- public.ccm2_rivers, public.ts_objects, public.ts_data_online, temp_gauges \
-WHERE \
- CAST(ccm2_rivers.number AS BIGINT) = ts_objects.fid_gauge AND \
- ts_objects.id_time_series = ts_data_online.fid_time_series AND \
- ccm2_rivers.number = temp_gauges.gauge AND \
- ts_objects.variable = \'Q\' AND \
- ts_data_online.time_stamp >= \'2014-08-21 13:00:00.00\' AND  \
- ts_data_online.time_stamp <= \'2014-08-28 13:00:00.00\'  \
-GROUP BY ccm2_rivers.number, temp_gauges.id, temp_gauges.geom \
-) \
-\
-SELECT return_periods.tn_1_11, return_periods.tn_1_5,  return_periods.tn_2, return_periods.tn_5, temp_max.gauges, temp_max.q_max, temp_max.geom \
-FROM  \
- public.ccm2_rivers, public.tn_estimation, public.return_periods, temp_max \
-WHERE  \
- CAST(ccm2_rivers.number AS BIGINT) = tn_estimation.fid_gauge AND \
- tn_estimation.id_tn_method = return_periods.fid_tn_method AND \
- ccm2_rivers.number = temp_max.gauges AND \
- tn_estimation.tn_baseperiod = \'3\' AND \
- tn_estimation.tn_method_code = \'6\';\
-'
-
 gauge_attributes=[]
-temp=classify_qmax(SQL, gauge_attributes)
+temp=classify_qmax(SQL, gauge_attributes, start, end)
 
 ################A#######################################################
 def create_featuresCollection(query):
@@ -136,7 +140,7 @@ def create_featuresCollection(query):
             props[key]=query_row[key]
 
         feature={'type' : 'Feature',
-                'geometry': geom,
+                'geometry': json.dumps(geom),
                 'properties': props,
                 }
         features.append(feature)

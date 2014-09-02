@@ -100,7 +100,7 @@ $(function() {
 				changeMonth: true,
 				numberOfMonths: 2,
 				maxDate: "-2d",
-				minDate: "-1w",
+				minDate: "-2w",
 				dateFormat: 'yy-mm-dd',
 				onClose: function( selectedDate ) {
 						$( "#end_date" ).datepicker( "option", "minDate", selectedDate );
