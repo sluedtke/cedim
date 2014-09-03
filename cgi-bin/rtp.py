@@ -2,7 +2,7 @@
 ######################################################################
 #       Author: Kai Schroeter
 #       Created: Tuesday 26 August 2014 
-#       Last modified: Thursday 28 August 2014 16:10:40 CEST
+#       Last modified: Tuesday 02 September 2014 21:41:41 CEST
 #############################       PURPOSE        ######################
 #
 #    evaluate online gauge data with regard to return period
@@ -13,16 +13,18 @@ import psycopg2
 import psycopg2.extras
 import cgi
 import sys, os
-import cgitb; cgitb.enable()  # for troubleshooting
+import cgitb
 from datetime import date, timedelta
+import pdb
 
+cgitb.enable()  # for troubleshooting
 form=cgi.FieldStorage()
 
 
-# Get data from fields
+# # Get data from fields
 start=form['start_date'].value
 end=form['end_date'].value
-
+#
 # adding the absolute path of this file to the python search path, so we can
 # keep all the other files via symbolic links 
 # sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__))))
@@ -57,99 +59,80 @@ conn = connect(db_name, user, pwd, host)
 cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
 # constrain the evaluation period to three weeks before current date
+# start = date.today() - timedelta(days=7)
+# end = date.today() - timedelta(days=2)
 
-# start = date.today() - timedelta(days=21)
-# end = date.today() 
-def classify_qmax(q, gauge):
-    SQL = cur.mogrify("SELECT return_periods.tn_1_11, return_periods.tn_1_5,  return_periods.tn_2, return_periods.tn_5 FROM public.ccm2_rivers, public.tn_estimation, public.return_periods WHERE \
-    CAST(ccm2_rivers.number AS BIGINT) = tn_estimation.fid_gauge AND tn_estimation.id_tn_method = return_periods.fid_tn_method AND \
-    ccm2_rivers.number = %s AND tn_estimation.tn_baseperiod = %s AND tn_estimation.tn_method_code = %s ",(item, '3', '6'))
+SQL='WITH \
+temp_gauges AS ( \
+SELECT gid AS id, number AS gauge, ST_AsGeoJSON(ST_TRANSFORM(geom, 900913)) AS geom \
+FROM  \
+ ccm2_rivers\
+), \
+temp_max AS ( \
+SELECT MAX(ts_data_online.value) AS q_max, ccm2_rivers.number AS gauges, temp_gauges.id, temp_gauges.geom \
+FROM \
+ public.ccm2_rivers, public.ts_objects, public.ts_data_online, temp_gauges \
+WHERE \
+ CAST(ccm2_rivers.number AS BIGINT) = ts_objects.fid_gauge AND \
+ ts_objects.id_time_series = ts_data_online.fid_time_series AND \
+ ccm2_rivers.number = temp_gauges.gauge AND \
+ ts_objects.variable = \'Q\' AND \
+ ts_data_online.time_stamp >= %s AND  \
+ ts_data_online.time_stamp <= %s AND \
+ ts_data_online.value IS NOT NULL \
+GROUP BY ccm2_rivers.number, temp_gauges.id, temp_gauges.geom \
+) \
+SELECT return_periods.tn_1_11, return_periods.tn_1_5,  return_periods.tn_2, return_periods.tn_5, temp_max.gauges, temp_max.q_max, temp_max.geom \
+FROM  \
+ public.ccm2_rivers, public.tn_estimation, public.return_periods, temp_max \
+WHERE  \
+ CAST(ccm2_rivers.number AS BIGINT) = tn_estimation.fid_gauge AND \
+ tn_estimation.id_tn_method = return_periods.fid_tn_method AND \
+ ccm2_rivers.number = temp_max.gauges AND \
+ tn_estimation.tn_baseperiod = \'3\' AND \
+tn_estimation.tn_method_code = \'6\';'
+
+
+def classify_qmax(SQL, target_list, start, end):
+    SQL=cur.mogrify(SQL, (start, end))
     cur.execute(SQL)
-    rps = cur.fetchall()
-    rps = rps[0]
-    if q <= rps[0]:
-        rp_class = 0
-    elif q > rps[0] and q <= rps[1]:
-        rp_class = 1
-    elif q > rps[1] and q <= rps[2]:
-        rp_class = 2
-    elif q > rps[2] and q <= rps[3]:
-        rp_class = 3
-    elif q > rps[3] :
-        rp_class = 4
-    else:
-        rp_class = 'NaN'
-    return rp_class
+    rps_all = cur.fetchall()
+    for rps in rps_all:
+        q=rps['q_max']
+        if q <= rps[0]:
+            rp_class = 0
+        elif q > rps[0] and q <= rps[1]:
+            rp_class = 1
+        elif q > rps[1] and q <= rps[2]:
+            rp_class = 2
+        elif q > rps[2] and q <= rps[3]:
+            rp_class = 3
+        elif q > rps[3] :
+            rp_class = 4
+        else:
+            rp_class = 'NULL'
+            q = 'NULL'
 
-
-def get_qmax(item,start, end):
-    SQL= cur.mogrify("SELECT  MAX(ts_data_online.value) FROM public.ccm2_rivers, \
-    public.ts_objects, public.ts_data_online WHERE CAST(ccm2_rivers.number AS \
-    BIGINT) = ts_objects.fid_gauge AND ts_objects.id_time_series = \
-    ts_data_online.fid_time_series AND ccm2_rivers.number = %s AND \
-    ts_objects.variable = %s AND ts_data_online.time_stamp >= %s AND ts_data_online.time_stamp <= %s ", \
-    (item, 'Q', start, end))
-
-    cur.execute(SQL)
-    qmax = cur.fetchall()
-    qmax = qmax[0]
-    qmax = qmax[0]
-    return qmax
-
-#select gauges to be processed
-SQL = cur.mogrify("SELECT number FROM ccm2_rivers")
-cur.execute(SQL)
-
-gauges = cur.fetchall()
-gauge_attributes=[]
-
-#loop gauges to determine max_q in relevant period and classify according to rp
-for item in gauges:
-    item = item['number']
-    qmax = get_qmax(item, start, end)
-
-    if qmax:
-        rp_class = classify_qmax(qmax, item)
+        # if rps['gauges'] == "26500100":
 
         #store results in dictionary
-        attr = {'number':item, 'qmax':qmax, 'rp_class':rp_class}
-        gauge_attributes.append(attr)
+        # pdb.set_trace()
+        # rps=dict(rps)
+        attr = {'number': rps['gauges'], 'qmax':q, 'rp_class':rp_class,
+                'geom': json.loads(rps['geom'])}
+        target_list.append(attr)
 
+    return target_list
 
-sql_river="SELECT gid AS id, number, ST_AsGeoJSON(ST_TRANSFORM(geom, 900913)) AS \
-geom FROM ccm2_rivers;"
-
-sql_gauge="SELECT gid AS id, name, ST_AsGeoJSON(ST_TRANSFORM(geom, 900913)) AS \
-geom FROM pegel_tbas;" 
-
-# data="2"
-
-# cur.execute(sql_poly, data)
-# cur.execute(sql_gauge)
-cur.execute(sql_river)
-rows=cur.fetchall()
-
-rows_new=[]
-for row in rows:
-    temp=dict(row)
-    rows_new.append(temp)
-
-# http://stackoverflow.com/questions/13975021/merge-join-lists-of-dictionaries-based-on-a-common-value-in-python
-from collections import defaultdict
-from itertools import chain
-
-collector = defaultdict(dict)
-
-for collectible in chain(gauge_attributes, rows_new):
-    collector[collectible['number']].update(collectible.iteritems())
-
-temp=list(collector.itervalues())
+gauge_attributes=[]
+temp=classify_qmax(SQL, gauge_attributes, start, end)
 
 ################A#######################################################
 def create_featuresCollection(query):
     features=[]
     for query_row in query:
-        geom=json.loads(query_row['geom'])
+        # geom=json.loads(query_row['geom'])
+        geom=query_row['geom']
         col_list=query_row.keys()
         # get rid of the geom column
         col_list=[elem for elem in col_list if elem != "geom"]
@@ -168,7 +151,6 @@ def create_featuresCollection(query):
         'features': 
             features
         }
-
     feat_coll=json.dumps(feat_coll)
     return(feat_coll)
 ################A#######################################################
@@ -176,5 +158,4 @@ def create_featuresCollection(query):
 geo_str=create_featuresCollection(temp)
 print "Content-type: text/javascript\n\n";
 print geo_str
-
 
