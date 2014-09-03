@@ -7,17 +7,22 @@ $(function(){
 		var lon =10.3;
 		var lat =51.5;
         var zoom = 6.4;
+
         
 		map = new OpenLayers.Map("map", {
 				 controls:[
 						 new OpenLayers.Control.Navigation(),
 						 new OpenLayers.Control.PanZoomBar(),
-						 new OpenLayers.Control.Attribution()],
+						 new OpenLayers.Control.Attribution(), 
+						 new OpenLayers.Control.LayerSwitcher(),
+						 new OpenLayers.Control.OverviewMap()
+				 ],
 						 displayProjection: new OpenLayers.Projection("EPSG:4326")}
 						);
 
         var base_layer = new OpenLayers.Layer.OSM();
         map.addLayer(base_layer);
+
 
         lonlat = new OpenLayers.LonLat(lon, lat).transform(fromProj, toProj);
         // lonlat = new OpenLayers.LonLat(lon, lat);
@@ -39,7 +44,7 @@ $(function(){
 				if (xmlhttp.readyState==4 && xmlhttp.status==200) {
 						// document.getElementById("txtHint").innerHTML=xmlhttp.responseText;
 						var geojson=xmlhttp.responseText;
-						visualize_gauge(geojson, "gauge");
+						visualize_gauge(geojson, "Gauging stations");
 				};
 		};
 
@@ -72,7 +77,7 @@ $(function(){
 				if (xmlhttp.readyState==4 && xmlhttp.status==200) {
 						// document.getElementById("txtHint").innerHTML=xmlhttp.responseText;
 						var geojson=xmlhttp.responseText;
-						visualize_base(geojson, "catch");
+						visualize_base(geojson, "Catchment boundaries");
 				};
 		};
 		catchment='query=catch';
@@ -105,7 +110,7 @@ $(function() {
 				onClose: function( selectedDate ) {
 						$( "#end_date" ).datepicker( "option", "minDate", selectedDate );
 				}
-		});
+		}).datepicker("setDate", new Date());
 
 		$( "#end_date" ).datepicker({
 				changeMonth: true,

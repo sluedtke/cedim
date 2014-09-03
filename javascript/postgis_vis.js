@@ -32,7 +32,7 @@ function visualize_query(geojson){
 		var selectedFeature, selectControl;
 		var featurecollection = JSON.parse(geojson);
 		var geojson_format = new OpenLayers.Format.GeoJSON();
-		var vector_layer = new OpenLayers.Layer.Vector("rivers", {
+		var vector_layer = new OpenLayers.Layer.Vector("Rivers", {
 				styleMap:river_styles 
 		});
 
