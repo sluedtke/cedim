@@ -29,6 +29,7 @@ form=cgi.FieldStorage()
 
 # Get data from fields
 query=form['query'].value
+# query="gauge"
 
 ######################################################################
 try:
@@ -48,6 +49,12 @@ sql_catchments="SELECT gid, ST_AsGeoJSON(ST_TRANSFORM(geom, 900913)) AS geom FRO
 
 #gauge
 sql_gauge="SELECT gid AS id, name, ST_AsGeoJSON(ST_TRANSFORM(geom, 900913)) AS geom FROM pegel_tbas;" 
+
+# sql river
+sql_river="SELECT gid AS id, number AS gauge, ST_AsGeoJSON(ST_TRANSFORM(geom, \
+        900913)) AS geom FROM ccm2_rivers;"
+
+
 ###############A#######################################################
 
 if query=="border":
@@ -56,6 +63,8 @@ elif query=="catch":
     cur.execute(sql_catchments)
 elif query=="gauge":
     cur.execute(sql_gauge)
+elif query=="river":
+    cur.execute(sql_river)
 else:
     print "No query string given"
 

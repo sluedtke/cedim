@@ -20,7 +20,8 @@ $(function(){
 						 displayProjection: new OpenLayers.Projection("EPSG:4326")}
 						);
 
-        var base_layer = new OpenLayers.Layer.OSM();
+		var base_layer = new OpenLayers.Layer.Stamen("toner");
+        // var base_layer = new OpenLayers.Layer.OSM();
         map.addLayer(base_layer);
 
 
@@ -105,7 +106,7 @@ $(function() {
 				changeMonth: true,
 				numberOfMonths: 2,
 				maxDate: "-2d",
-				minDate: "-2w",
+				minDate: "-8w",
 				dateFormat: 'yy-mm-dd',
 				onClose: function( selectedDate ) {
 						$( "#end_date" ).datepicker( "option", "minDate", selectedDate );

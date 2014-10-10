@@ -21,10 +21,10 @@ cgitb.enable()  # for troubleshooting
 form=cgi.FieldStorage()
 
 
-# # Get data from fields
+# Get data from fields
 start=form['start_date'].value
 end=form['end_date'].value
-#
+
 # adding the absolute path of this file to the python search path, so we can
 # keep all the other files via symbolic links 
 # sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__))))
