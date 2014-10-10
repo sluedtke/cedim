@@ -5,7 +5,7 @@
 
 	<!-- Load the ExtJS stylesheet -->
 	<link rel="stylesheet" type="text/css"
-	href="./javascript/ext-4.2.1.883/resources/ext-theme-neptune/ext-theme-neptune-all.css">
+	href="javascript/ext-4.2.1.883/resources/ext-theme-neptune/ext-theme-neptune-all.css">
 	<!-- Load ExtJS from their CDN, local versions work also -->
 	<script type="text/javascript"
 	src="./javascript/ext-4.2.1.883/ext-debug.js"></script>
@@ -13,7 +13,7 @@
 	<script src="http://openlayers.org/api/2.13.1/OpenLayers.js"></script>
 	<script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.3.0"></script>
 
-
+	<script type="text/javascript" src="./javascript/loader.js"></script>
 	<script src="./javascript/colorbrewer.js" ></script>
 	<script src="./javascript/layer_styles.js" ></script>
 	<script type="text/javascript" src="./javascript/base_layers.js"></script>
@@ -22,20 +22,6 @@
 
 </head>
 <body>
-	<script type="text/javascript">
-		Ext.Loader.setConfig({
-			enabled: true,
-			disableCaching: false,
-			paths: {
-				GeoExt: "javascript/geoext2/src/GeoExt",
-				Ext: "javascript/ext-4.2.1.883/src"
-			}
-		});
-
-	</script>
 	<div id="mainpanel"></div>
-	<div id="start"></div>
-	<div id="end"></div>
-	<div id="button"></div>
 </body>
 </html>
