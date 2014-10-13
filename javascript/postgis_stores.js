@@ -19,7 +19,7 @@ Ext.onReady(function() {
 
 			//----------------------------------//
 
-			var river_ud_ft = new Ext.create("GeoExt.data.FeatureStore", {
+			river_ud_ft = new Ext.create("GeoExt.data.FeatureStore", {
 					layer: rivers_ud,
 					fields: [
 							// {name: 'number', type: 'numeric'},
@@ -31,8 +31,9 @@ Ext.onReady(function() {
 									type: 'ajax',
 									url: "cgi-bin/rtp.py",
 									params: {
-											start_date: '2014-09-25', 
-											end_date: '2014-09-28'
+											start_date: 'dummy_value', 
+											end_date: 'dummy_value', 
+											rp_array: 'dummy_value'
 									},
 									format: new OpenLayers.Format.GeoJSON()
 							})
@@ -80,7 +81,7 @@ Ext.onReady(function() {
 
 			//----------------------------------//
 
-			var river_hist_ft = new Ext.create("GeoExt.data.FeatureStore", {
+			river_hist_ft = new Ext.create("GeoExt.data.FeatureStore", {
 					layer: rivers_hist,
 					fields: [
 							// {name: 'number', type: 'numeric'},
@@ -89,10 +90,10 @@ Ext.onReady(function() {
 					],
 					proxy: new Ext.create("GeoExt.data.proxy.Protocol", {
 							protocol: new OpenLayers.Protocol.HTTP({
-									url: "cgi-bin/rtp.py",
+									url: "cgi-bin/rp_hist.py",
 									params: {
-											start_date: '2014-09-25', 
-											end_date: '2014-09-28'
+											bp_value: 'dummy_value', 
+											rp_array: 'dummy_value'
 									},
 									format: new OpenLayers.Format.GeoJSON()
 							})
