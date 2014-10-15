@@ -36,7 +36,7 @@ Ext.onReady(function() {
 					title: 'The current situation in Germany',
 					id: 'mappanel_ud',
 					region: "west",
-					width: 500,
+					width: 400,
 					map: map_ud,
 					layers: [base_layer_ud, gauges_ud, rivers_ud, base_river_ud],
 					zoom: zoom,
@@ -49,7 +49,7 @@ Ext.onReady(function() {
 					title: 'A given historic situation',
 					id: 'mappanel_hist',
 					region: "east",
-					width: 500,
+					width: 400,
 					map: map_hist,
 					layers: [base_layer_hist, gauges_hist, rivers_hist, base_river_hist],
 					zoom: zoom,
@@ -64,10 +64,10 @@ Ext.onReady(function() {
 			var end_default=new Date();
 			end_default.setDate(end_default.getDate()-1);
 
-			// var toolbar =Ext.create('Ext.toolbar.Toolbar', {
-			var toolbar =Ext.create('Ext.panel.Panel', {
-					title: 'Options',
-					width: 300,
+
+			var daterange =Ext.create('Ext.panel.Panel', {
+					title: 'Date range',
+					width: 250,
 					layout: {
 							type: 'vbox',       // Arrange child items vertically
 							align: 'stretch',    // Each takes up full width
@@ -75,10 +75,6 @@ Ext.onReady(function() {
 					},
 					items: [
 					{
-							title: "Date range selection",
-						   	xtype: 'tbspacer', 
-							height: 40
-					},{
 							//------------------------//
 							xtype: 'datefield',
 							name: 'start_date',
@@ -96,19 +92,26 @@ Ext.onReady(function() {
 							fieldLabel: 'End date',
 							hideLabel: false,
 							value: end_default
-					},{
+					}
+					]
+			});
 
-					// add a vertical separator bar between toolbar items
-
-						   	xtype: 'tbspacer', 
-							height: 40
-					},{
+			var ref_period = Ext.create('Ext.panel.Panel', {
+					title: 'Reference period',
+					width: 250,
+					layout: {
+							type: 'vbox',       // Arrange child items vertically
+							align: 'stretch',    // Each takes up full width
+							padding: 10
+					},
+					items: [
+					{
 							xtype: 'radiogroup',
-							fieldLabel: 'Choose a reference period',
+							// fieldLabel: 'Choose a reference period',
 							name: 'bp_value',
 							id: 'bp_value',
 							// Arrange checkboxes into two columns, distributed vertically
-							columns: 1,
+							columns: 2,
 							padding: 10,
 							vertical: true,
 							items: [
@@ -117,13 +120,26 @@ Ext.onReady(function() {
 									{ boxLabel: 'Year 1990', name: 'bp_value', inputValue: '1990'},
 									{ boxLabel: 'Year 2014', name: 'bp_value', inputValue: '2014', checked: true },
 							]
-					},{
+					}]
+			});
+
+			var rt_period = Ext.create('Ext.panel.Panel', {
+					title: 'Return periods',
+					width: 250,
+					layout: {
+							type: 'vbox',       // Arrange child items vertically
+							align: 'stretch',    // Each takes up full width
+							padding: 10,
+							frame: false
+					},
+					items: [
+					{
 							xtype: 'checkboxgroup',
-							fieldLabel: 'Choose a set of return periods',
+							// fieldLabel: 'Choose a set of return periods',
 							name: 'rp_value',
 							id: 'rp_value',
 							// Arrange checkboxes into two columns, distributed vertically
-							columns: 1,
+							columns: 2,
 							padding: 10,
 							// copied from 
 							// http://stackoverflow.com/questions/13487320/restrict-selected-checkboxes-to-number-of-5
@@ -150,7 +166,22 @@ Ext.onReady(function() {
 									{ boxLabel: '50', name: 'rp_value', inputValue: '50'},
 									{ boxLabel: '100', name: 'rp_value', inputValue: '100', checked: true },
 							]
-					},{
+					}
+					]
+			});
+
+			var submit = Ext.create('Ext.panel.Panel', {
+					width: 250,
+					layout: {
+							type: 'vbox',       // Arrange child items vertically
+							align: 'stretch',    // Each takes up full width
+							padding: 10
+					},
+					defaults: {
+							frame: false
+					},
+					items: [
+					{
 							//------------------------//
 							xtype: 'button',
 							text: 'Spin the wheel',
@@ -172,7 +203,23 @@ Ext.onReady(function() {
 			});
 
 			//----------------------------------//
+			//
+			// var toolbar =Ext.create('Ext.toolbar.Toolbar', {
+			var toolbar =Ext.create('Ext.panel.Panel', {
+					width: 250,
+					layout: {
+							type: 'vbox',
+							// align: 'stretch',    // Each takes up full width
+							// padding: 10,
+					},
+					items: [daterange, ref_period, rt_period, submit],
+					defaults: {
+							frame: false
+					}
+			});
 
+			//----------------------------------//
+			//----------------------------------//
 			// main panel
 			Ext.create('Ext.panel.Panel', {
 					id:'main-panel',
@@ -188,7 +235,7 @@ Ext.onReady(function() {
 					defaults: {
 							height: 600,
 							frame: false
-					},
+					}
 			});
 
 			//----------------------------------//
