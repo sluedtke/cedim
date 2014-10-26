@@ -1,9 +1,9 @@
 river_styles = new OpenLayers.StyleMap({});
 var river_default={
-  0: {strokeColor: colorbrewer.RdYlGn[4][3], strokeWidth: 2},
-  1: {strokeColor: colorbrewer.RdYlGn[4][2], strokeWidth: 2},
-  2: {strokeColor: colorbrewer.RdYlGn[4][1], strokeWidth: 2},
-  3: {strokeColor: colorbrewer.RdYlGn[4][0], strokeWidth: 2}
+  0: {strokeColor: colorbrewer.RdYlGn[4][3], strokeWidth: 4},
+  1: {strokeColor: colorbrewer.RdYlGn[4][2], strokeWidth: 4},
+  2: {strokeColor: colorbrewer.RdYlGn[4][1], strokeWidth: 4},
+  3: {strokeColor: colorbrewer.RdYlGn[4][0], strokeWidth: 4}
 }
 river_styles.addUniqueValueRules("default", "rp_class", river_default);
 

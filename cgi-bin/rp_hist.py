@@ -23,8 +23,8 @@ form=cgi.FieldStorage()
 
 
 # Get data from fields
-start=form['start_date'].value
-end=form['end_date'].value
+# start=form['start_date'].value
+# end=form['end_date'].value
 
 # adding the absolute path of this file to the python search path, so we can
 # keep all the other files via symbolic links 
@@ -59,13 +59,6 @@ def read_sql(sql_fn):
     sql = " ".join(fn.readlines())
     return(sql)
 
-SQL=read_sql('./sql_files/rtp_new_dyn.sql')
-
-#data base connection and creation of cursor    
-db_name, user, pwd, host = settings_vm27_guest()
-conn = connect(db_name, user, pwd, host)
-cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-
 # constrain the evaluation period to three weeks before current date
 start = '2006-05-20' 
 end = '2008-06-20' 
@@ -73,11 +66,19 @@ end = '2008-06-20'
 json_array=(1.5, 2, 10)
 params=(start, end) + json_array
 
-placeholder= '%s'
-placeholders= ', '.join(placeholder for unused in l)
-SQL=string.replace(SQL, 'XXXX', placeholders)
 
-def classify_qmax(SQL, target_list, params):
+def classify_qmax(target_list, params):
+
+    SQL=read_sql('../sql_files/rtp_new.sql')
+    placeholder= '%s'
+    placeholders= ', '.join(placeholder for unused in json_array)
+    SQL=string.replace(SQL, 'XXXX', placeholders)
+
+    #data base connection and creation of cursor    
+    db_name, user, pwd, host = settings_vm27_guest()
+    conn = connect(db_name, user, pwd, host)
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
     SQL=cur.mogrify(SQL, params)
     cur.execute(SQL)
     rps_all = cur.fetchall()
@@ -92,7 +93,7 @@ def classify_qmax(SQL, target_list, params):
     return target_list
 
 gauge_attributes=[]
-temp=classify_qmax(SQL, gauge_attributes, params)
+temp=classify_qmax(gauge_attributes, params)
 
 ################A#######################################################
 def create_featuresCollection(query):
