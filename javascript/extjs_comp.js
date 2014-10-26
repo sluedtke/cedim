@@ -4,16 +4,16 @@ function update_rtp(start_date, end_date, bp_value, rp_array) {
 		//Setting the parameters for the current situation 
 		// format the dates that the query likes it
 		//
-		// start=Ext.Date.format(start_date, 'Y-m-d');
-		// river_ud_ft.proxy.protocol.params.start_date = start;
+		start=Ext.Date.format(start_date, 'Y-m-d');
+		river_ud_ft.proxy.protocol.params.start_date = start;
         //
-		// end=Ext.Date.format(end_date, 'Y-m-d');
-		// river_ud_ft.proxy.protocol.params.end_date = end;
+		end=Ext.Date.format(end_date, 'Y-m-d');
+		river_ud_ft.proxy.protocol.params.end_date = end;
         //
 		// //the return periods
 		// rp_array=JSON.stringify(rp_array)
 		// river_ud_ft.proxy.protocol.params.rp_array = rp_array;
-		// river_ud_ft.autoLoad=true;
+		river_ud_ft.autoLoad=true;
 
 		//Setting the parameters for the historic situation
 		
@@ -22,7 +22,7 @@ function update_rtp(start_date, end_date, bp_value, rp_array) {
 		river_hist_ft.autoLoad=true;
 
 		// load the feature stores with the new parameters
-		// river_ud_ft.load();
+		river_ud_ft.load();
 		river_hist_ft.load();
 
 };

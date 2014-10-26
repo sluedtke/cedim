@@ -16,7 +16,6 @@ import sys, os
 import cgitb
 from datetime import date, timedelta
 import pdb
-import string 
 
 cgitb.enable()  # for troubleshooting
 form=cgi.FieldStorage()
@@ -54,37 +53,71 @@ def settings_vm27_guest():
     host = "139.17.99.27"
     return db_name, nutzer, pwd, host
 
-def read_sql(sql_fn):
-    fn = open(sql_fn, 'r')
-    sql = " ".join(fn.readlines())
-    return(sql)
-
-SQL=read_sql('./sql_files/rtp_new_dyn.sql')
-
 #data base connection and creation of cursor    
 db_name, user, pwd, host = settings_vm27_guest()
 conn = connect(db_name, user, pwd, host)
 cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
 # constrain the evaluation period to three weeks before current date
-start = '2006-05-20' 
-end = '2008-06-20' 
+# start = date.today() - timedelta(days=7)
+# end = date.today() - timedelta(days=2)
 
-json_array=(1.5, 2, 10)
-params=(start, end) + json_array
+SQL='WITH \
+temp_gauges AS ( \
+SELECT gid AS id, number AS gauge, ST_AsGeoJSON(ST_TRANSFORM(geom, 900913)) AS geom \
+FROM  \
+ ccm2_rivers\
+), \
+temp_max AS ( \
+SELECT MAX(ts_data_online.value) AS q_max, ccm2_rivers.number AS gauges, temp_gauges.id, temp_gauges.geom \
+FROM \
+ public.ccm2_rivers, public.ts_objects, public.ts_data_online, temp_gauges \
+WHERE \
+ CAST(ccm2_rivers.number AS BIGINT) = ts_objects.fid_gauge AND \
+ ts_objects.id_time_series = ts_data_online.fid_time_series AND \
+ ccm2_rivers.number = temp_gauges.gauge AND \
+ ts_objects.variable = \'Q\' AND \
+ ts_data_online.time_stamp >= %s AND  \
+ ts_data_online.time_stamp <= %s AND \
+ ts_data_online.value IS NOT NULL \
+GROUP BY ccm2_rivers.number, temp_gauges.id, temp_gauges.geom \
+) \
+SELECT return_periods.tn_1_11, return_periods.tn_1_5,  return_periods.tn_2, return_periods.tn_5, temp_max.gauges, temp_max.q_max, temp_max.geom \
+FROM  \
+ public.ccm2_rivers, public.tn_estimation, public.return_periods, temp_max \
+WHERE  \
+ CAST(ccm2_rivers.number AS BIGINT) = tn_estimation.fid_gauge AND \
+ tn_estimation.id_tn_method = return_periods.fid_tn_method AND \
+ ccm2_rivers.number = temp_max.gauges AND \
+ tn_estimation.tn_baseperiod = \'3\' AND \
+tn_estimation.tn_method_code = \'6\';'
 
-placeholder= '%s'
-placeholders= ', '.join(placeholder for unused in l)
-SQL=string.replace(SQL, 'XXXX', placeholders)
 
-def classify_qmax(SQL, target_list, params):
-    SQL=cur.mogrify(SQL, params)
+def classify_qmax(SQL, target_list, start, end):
+    SQL=cur.mogrify(SQL, (start, end))
     cur.execute(SQL)
     rps_all = cur.fetchall()
     for rps in rps_all:
         q=rps['q_max']
-        rp_class = 4
+        if q <= rps[0]:
+            rp_class = 0
+        elif q > rps[0] and q <= rps[1]:
+            rp_class = 1
+        elif q > rps[1] and q <= rps[2]:
+            rp_class = 2
+        elif q > rps[2] and q <= rps[3]:
+            rp_class = 3
+        elif q > rps[3] :
+            rp_class = 4
+        else:
+            rp_class = 'NULL'
+            q = 'NULL'
 
+        # if rps['gauges'] == "26500100":
+
+        #store results in dictionary
+        # pdb.set_trace()
+        # rps=dict(rps)
         attr = {'number': rps['gauges'], 'qmax':q, 'rp_class':rp_class,
                 'geom': json.loads(rps['geom'])}
         target_list.append(attr)
@@ -92,7 +125,7 @@ def classify_qmax(SQL, target_list, params):
     return target_list
 
 gauge_attributes=[]
-temp=classify_qmax(SQL, gauge_attributes, params)
+temp=classify_qmax(SQL, gauge_attributes, start, end)
 
 ################A#######################################################
 def create_featuresCollection(query):
