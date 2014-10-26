@@ -10,19 +10,19 @@ function update_rtp(start_date, end_date, bp_value, rp_array) {
 		river_ud_ft.proxy.protocol.params.end_date = end;
 
 		//the return periods
-		rp_array=JSON.stringify(rp_array)
-		river_ud_ft.proxy.protocol.params.rp_array = rp_array;
+		// rp_array=JSON.stringify(rp_array)
+		// river_ud_ft.proxy.protocol.params.rp_array = rp_array;
 		river_ud_ft.autoLoad=true;
 
 		//Setting the parameters for the historic situation
 		
-		river_hist_ft.proxy.protocol.params.rp_array = rp_array;
-		river_hist_ft.proxy.protocol.params.bp_value = bp_value;
-		river_hist_ft.autoLoad=true;
+		// river_hist_ft.proxy.protocol.params.rp_array = rp_array;
+		// river_hist_ft.proxy.protocol.params.bp_value = bp_value;
+		// river_hist_ft.autoLoad=true;
 
 		// load the feature stores with the new parameters
 		river_ud_ft.load();
-		river_hist_ft.load();
+		// river_hist_ft.load();
 
 };
 
