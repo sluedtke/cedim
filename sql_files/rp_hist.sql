@@ -11,7 +11,8 @@ temp_max AS (
 SELECT
  MAX(ts_data.value ) AS q_max,
  ccm2_rivers.number AS gauges,
- temp_gauges.id
+ temp_gauges.id,
+ temp_gauges.geom
 FROM 
 public.ccm2_rivers, public.ts_objects, public.ts_data, temp_gauges 
 WHERE 
@@ -23,7 +24,7 @@ WHERE
  ts_data.time_stamp <= %s AND 
  ts_data.value IS NOT NULL AND
  ts_data.value != 'NaN'
-GROUP BY ccm2_rivers.number, temp_gauges.id
+GROUP BY ccm2_rivers.number, temp_gauges.id, temp_gauges.geom
 ), 
 
 rp_select AS (
@@ -31,6 +32,7 @@ SELECT
  return_periods_long.rp_code,
  temp_max.gauges,
  temp_max.q_max,
+ temp_max.geom,
  return_periods_long.rps,
  (temp_max.q_max-return_periods_long.rps) AS diff
 FROM 
@@ -47,13 +49,13 @@ ORDER BY gauges
 
 ranked_q AS (
 SELECT 
-rp_code, gauges, rps, q_max, diff, rank()
+rp_code, gauges, rps, q_max, geom, diff, rank()
 OVER (PARTITION BY gauges ORDER BY diff DESC)
 FROM rp_select
 )
 --
 SELECT DISTINCT ON (gauges)
-rp_code, gauges, q_max, rps, rank AS rp_class
+rp_code, gauges, q_max, rps, rank AS rp_class, geom
 FROM ranked_q
 WHERE
 diff >= 0

@@ -13,32 +13,20 @@ import psycopg2
 import psycopg2.extras
 import cgi
 import sys, os
-import cgitb
 from datetime import date, timedelta
 import pdb
-import string 
+import string
 
-cgitb.enable()  # for troubleshooting
+import cgitb; cgitb.enable()  # for troubleshooting
+
 form=cgi.FieldStorage()
 
-
 # Get data from fields
-bp_value=form['bp_value'].value
-bp_value=int(float(bp_value))
-# bp_value=2002
+start=form['start_date'].value
+end=form['end_date'].value
 
-# constrain the evaluation period to three weeks before current date
-if bp_value==1954:
-    start="1954-07-02"
-    end="1954-07-31"
-elif bp_value==2002:
-    start="2002-08-09"
-    end="2002-08-24"
-elif bp_value==2013:
-    start="2013-05-22"
-    end="2013-06-11"
-else:
-    print "No query string given"
+# start="2014-07-02"
+# end="2014-07-07"
 
 # adding the absolute path of this file to the python search path, so we can
 # keep all the other files via symbolic links 
@@ -69,10 +57,9 @@ def read_sql(sql_fn):
 json_array=(1.5, 2, 10)
 params=(start, end) + json_array
 
-
 def classify_qmax(target_list, params):
 
-    SQL=read_sql('../sql_files/rp_hist.sql')
+    SQL=read_sql('../sql_files/rp_current.sql')
     placeholder= '%s'
     placeholders= ', '.join(placeholder for unused in json_array)
     SQL=string.replace(SQL, 'XXXX', placeholders)
@@ -93,7 +80,6 @@ def classify_qmax(target_list, params):
         target_list.append(attr)
 
     return target_list
-
 ################A#######################################################
 def create_featuresCollection(query):
     features=[]

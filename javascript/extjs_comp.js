@@ -16,15 +16,13 @@ function update_rtp(start_date, end_date, bp_value, rp_array) {
 		river_ud_ft.autoLoad=true;
 
 		//Setting the parameters for the historic situation
-		
 		// river_hist_ft.proxy.protocol.params.rp_array = rp_array;
-		// river_hist_ft.proxy.protocol.params.bp_value = bp_value;
+		river_hist_ft.proxy.protocol.params.bp_value=bp_value.bp_value;
 		river_hist_ft.autoLoad=true;
 
 		// load the feature stores with the new parameters
 		river_ud_ft.load();
 		river_hist_ft.load();
-
 };
 
 Ext.require([
@@ -116,10 +114,9 @@ Ext.onReady(function() {
 							padding: 10,
 							vertical: true,
 							items: [
-									{ boxLabel: 'Year 1954', name: 'bp_value', inputValue: '1954'},
-									{ boxLabel: 'Year 1974', name: 'bp_value', inputValue: '1974'},
-									{ boxLabel: 'Year 1990', name: 'bp_value', inputValue: '1990'},
-									{ boxLabel: 'Year 2014', name: 'bp_value', inputValue: '2014', checked: true },
+									{ boxLabel: 'Year 1954', name: 'bp_value', inputValue: 1954},
+									{ boxLabel: 'Year 2002', name: 'bp_value', inputValue: 2002, checked: true },
+									{ boxLabel: 'Year 2012', name: 'bp_value', inputValue: 2013}
 							]
 					}]
 			});
