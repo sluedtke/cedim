@@ -1,48 +1,5 @@
 Ext.onReady(function() {
 			//----------------------------------//
-			var gauge_ud_ft = new Ext.create("GeoExt.data.FeatureStore", {
-					layer: gauges_ud,
-					fields: [
-							{name: 'id', type: 'numeric'},
-							{name: 'name', type: 'string'}
-					],
-					proxy: new Ext.create("GeoExt.data.proxy.Protocol", {
-							protocol: new OpenLayers.Protocol.HTTP({
-									url: "cgi-bin/get_base.py",
-									params: {
-											query: 'gauge'},
-											format: new OpenLayers.Format.GeoJSON()
-							})
-					}),
-					autoLoad: true
-			});
-
-			//----------------------------------//
-
-			river_ud_ft = new Ext.create("GeoExt.data.FeatureStore", {
-					layer: rivers_ud,
-					fields: [
-							// {name: 'number', type: 'numeric'},
-							{name: 'rp_class', type: 'numeric'}
-							// {name: 'qmax', type: 'numeric'}
-					],
-					proxy: new Ext.create("GeoExt.data.proxy.Protocol", {
-							protocol: new OpenLayers.Protocol.HTTP({
-									type: 'ajax',
-									url: "cgi-bin/rtp.py",
-									params: {
-											start_date: 'dummy_value', 
-											end_date: 'dummy_value', 
-											rp_array: 'dummy_value'
-									},
-									format: new OpenLayers.Format.GeoJSON()
-							})
-					}), 
-					autoLoad: false
-			});
-
-			//----------------------------------//
-
 			var base_river_ud_ft = new Ext.create("GeoExt.data.FeatureStore", {
 					layer: base_river_ud,
 					fields: [
@@ -61,7 +18,23 @@ Ext.onReady(function() {
 			});
 
 			//----------------------------------//
-
+			var base_river_hist_ft = new Ext.create("GeoExt.data.FeatureStore", {
+					layer: base_river_hist,
+					fields: [
+							{name: 'id', type: 'numeric'}
+					],
+					proxy: new Ext.create("GeoExt.data.proxy.Protocol", {
+							protocol: new OpenLayers.Protocol.HTTP({
+									type: 'ajax',
+									url: "cgi-bin/get_base.py",
+									params: {
+											query: 'river'
+									},
+									format: new OpenLayers.Format.GeoJSON()
+							})
+					}), 
+					autoLoad: true 
+			});
 			var gauge_hist_ft = new Ext.create("GeoExt.data.FeatureStore", {
 					layer: gauges_hist,
 					fields: [
@@ -80,7 +53,47 @@ Ext.onReady(function() {
 			});
 
 			//----------------------------------//
+			var gauge_ud_ft = new Ext.create("GeoExt.data.FeatureStore", {
+					layer: gauges_ud,
+					fields: [
+							{name: 'id', type: 'numeric'},
+							{name: 'name', type: 'string'}
+					],
+					proxy: new Ext.create("GeoExt.data.proxy.Protocol", {
+							protocol: new OpenLayers.Protocol.HTTP({
+									url: "cgi-bin/get_base.py",
+									params: {
+											query: 'gauge'},
+											format: new OpenLayers.Format.GeoJSON()
+							})
+					}),
+					autoLoad: true
+			});
 
+			//----------------------------------//
+			river_ud_ft = new Ext.create("GeoExt.data.FeatureStore", {
+					layer: rivers_ud,
+					fields: [
+							// {name: 'number', type: 'numeric'},
+							{name: 'rp_class', type: 'numeric'}
+							// {name: 'qmax', type: 'numeric'}
+					],
+					proxy: new Ext.create("GeoExt.data.proxy.Protocol", {
+							protocol: new OpenLayers.Protocol.HTTP({
+									type: 'ajax',
+									url: "cgi-bin/rp_current.py",
+									params: {
+											start_date: 'dummy_value', 
+											end_date: 'dummy_value'
+											// rp_array: 'dummy_value'
+									},
+									format: new OpenLayers.Format.GeoJSON(),
+							})
+					}), 
+					autoLoad: false
+			});
+
+			//----------------------------------//
 			river_hist_ft = new Ext.create("GeoExt.data.FeatureStore", {
 					layer: rivers_hist,
 					fields: [
@@ -92,8 +105,8 @@ Ext.onReady(function() {
 							protocol: new OpenLayers.Protocol.HTTP({
 									url: "cgi-bin/rp_hist.py",
 									params: {
-											bp_value: 'dummy_value', 
-											rp_array: 'dummy_value'
+											bp_value: 2002 
+											// rp_array: 'dummy_value'
 									},
 									format: new OpenLayers.Format.GeoJSON()
 							})
@@ -101,25 +114,6 @@ Ext.onReady(function() {
 					autoLoad: false
 			});
 
-			//----------------------------------//
-
-			var base_river_hist_ft = new Ext.create("GeoExt.data.FeatureStore", {
-					layer: base_river_hist,
-					fields: [
-							{name: 'id', type: 'numeric'}
-					],
-					proxy: new Ext.create("GeoExt.data.proxy.Protocol", {
-							protocol: new OpenLayers.Protocol.HTTP({
-									type: 'ajax',
-									url: "cgi-bin/get_base.py",
-									params: {
-											query: 'river'
-									},
-									format: new OpenLayers.Format.GeoJSON()
-							})
-					}), 
-					autoLoad: true 
-			});
 
 });
 
