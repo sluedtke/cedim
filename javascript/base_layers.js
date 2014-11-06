@@ -58,11 +58,9 @@ base_river_hist = new OpenLayers.Layer.Vector("base_rivers_hist", {
 
 // the color coded river block
 rivers_ud = new OpenLayers.Layer.Vector("rivers_ud", {
-				styleMap:river_styles
 });
 // the color coded river block
 rivers_hist = new OpenLayers.Layer.Vector("rivers_hist", {
-				styleMap: river_styles
 });
 
 

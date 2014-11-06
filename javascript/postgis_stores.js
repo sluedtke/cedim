@@ -74,9 +74,9 @@ Ext.onReady(function() {
 			river_ud_ft = new Ext.create("GeoExt.data.FeatureStore", {
 					layer: rivers_ud,
 					fields: [
-							// {name: 'number', type: 'numeric'},
-							{name: 'rp_class', type: 'numeric'}
-							// {name: 'qmax', type: 'numeric'}
+							{name: 'number', type: 'numeric'},
+							{name: 'rp_class', type: 'numeric'},
+							{name: 'qmax', type: 'numeric'}
 					],
 					proxy: new Ext.create("GeoExt.data.proxy.Protocol", {
 							protocol: new OpenLayers.Protocol.HTTP({
@@ -97,9 +97,9 @@ Ext.onReady(function() {
 			river_hist_ft = new Ext.create("GeoExt.data.FeatureStore", {
 					layer: rivers_hist,
 					fields: [
-							// {name: 'number', type: 'numeric'},
-							{name: 'rp_class', type: 'numeric'}
-							// {name: 'qmax', type: 'numeric'}
+							{name: 'number', type: 'numeric'},
+							{name: 'rp_class', type: 'numeric'},
+							{name: 'qmax', type: 'numeric'}
 					],
 					proxy: new Ext.create("GeoExt.data.proxy.Protocol", {
 							protocol: new OpenLayers.Protocol.HTTP({
