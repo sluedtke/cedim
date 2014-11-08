@@ -1,21 +1,47 @@
 
 function update_rtp(start_date, end_date, bp_value, rp_array) {
 		
-		river_styles = new OpenLayers.StyleMap({});
-
+		//----------------------------------//
+		//get the length of the return period array
 		var rp_length=Ext.getCmp('rp_value').getValue().rp_value.length;
+		// and the array itself
+		var rp_array=Ext.getCmp('rp_value').getValue().rp_value
+		// dummy var to push the rules into
+		var rules = [];
+		// first class we start with
+		rp_class=1;
 
-		var river_default={
-				0: {strokeColor: '#bababa', strokeWidth: 4},
-				1: {strokeColor: colorbrewer.RdYlGn[rp_length][2], strokeWidth: 4},
-				2: {strokeColor: colorbrewer.RdYlGn[rp_length][1], strokeWidth: 4},
-				3: {strokeColor: colorbrewer.RdYlGn[rp_length][0], strokeWidth: 4},
-		}
+		for(i=0; i<rp_length; i++){
 
-		river_styles.addUniqueValueRules("default", "rp_class", river_default);
+				// get the choosen return period at index i
+				text="return period: " + rp_array[i];
+				// the colors are inverted .. 
+				color_index=rp_length-(i+1);
+
+				temp=new OpenLayers.Rule({
+						title: text, 
+						filter: new OpenLayers.Filter.Comparison({
+								type: OpenLayers.Filter.Comparison.EQUAL_TO,
+								property: "rp_class",
+								value: rp_class
+						}),
+						symbolizer: {
+								// rp_length defines the colors to chose from ,color index the position in that vector
+								strokeColor: colorbrewer.RdYlGn[rp_length][color_index],
+								strokeWidth: 4
+						}
+				});
+				// increment by one
+				rp_class=rp_class+1;
+				// add to dummy variable 
+				rules.push(temp);
+		};
+		var river_styles= new OpenLayers.StyleMap(new OpenLayers.Style({}, {rules: rules}))
 
 		rivers_hist.styleMap=river_styles;
 		rivers_ud.styleMap=river_styles;
+
+		//----------------------------------//
 
 		//Setting the parameters for the current situation 
 		// format the dates that the query likes it
@@ -27,8 +53,8 @@ function update_rtp(start_date, end_date, bp_value, rp_array) {
 		river_ud_ft.proxy.protocol.params.end_date = end;
         //
 		// //the return periods
-		// rp_array=JSON.stringify(rp_array)
-		// river_ud_ft.proxy.protocol.params.rp_array = rp_array;
+		rp_array=JSON.stringify(rp_array)
+		river_ud_ft.proxy.protocol.params.rp_array = rp_array;
 		river_ud_ft.autoLoad=true;
 
 		//Setting the parameters for the historic situation
@@ -43,11 +69,8 @@ function update_rtp(start_date, end_date, bp_value, rp_array) {
 
 Ext.require([
     'Ext.form.*',
-	'Ext.container.Viewport',
     'Ext.layout.container.Border',
     'GeoExt.panel.Map', 
-    // 'GeoExt.container.WmsLegend',
-    // 'GeoExt.container.UrlLegend',
     'GeoExt.container.VectorLegend',
     'GeoExt.panel.Legend'
 ]);
@@ -73,7 +96,7 @@ Ext.onReady(function() {
 
 		//----------------------------------//
 
-		var mappanel_hist = Ext.create('GeoExt.panel.Map', {
+		var	mappanel_hist = Ext.create('GeoExt.panel.Map', {
 				title: 'A given historic situation',
 				id: 'mappanel_hist',
 				region: "east",
@@ -185,13 +208,13 @@ Ext.onReady(function() {
 						// },
 						vertical: true,
 						items: [
-								{ boxLabel: '1', name: 'rp_value', inputValue: '1'},
-								{ boxLabel: '2', name: 'rp_value', inputValue: '2', checked: true },
-								{ boxLabel: '5', name: 'rp_value', inputValue: '5', checked: true },
-								{ boxLabel: '10', name: 'rp_value', inputValue: '10'},
-								{ boxLabel: '20', name: 'rp_value', inputValue: '20'},
-								{ boxLabel: '50', name: 'rp_value', inputValue: '50'},
-								{ boxLabel: '100', name: 'rp_value', inputValue: '100', checked: true },
+								{ boxLabel: '1', name: 'rp_value', inputValue: 1},
+								{ boxLabel: '2', name: 'rp_value', inputValue: 2, checked: true },
+								{ boxLabel: '5', name: 'rp_value', inputValue: 5, checked: true },
+								{ boxLabel: '10', name: 'rp_value', inputValue: 10},
+								{ boxLabel: '20', name: 'rp_value', inputValue: 20},
+								{ boxLabel: '50', name: 'rp_value', inputValue: 50},
+								{ boxLabel: '100', name: 'rp_value', inputValue: 100, checked: true },
 						]
 				}
 				]
@@ -239,7 +262,7 @@ Ext.onReady(function() {
 				},
 				bodyStyle: 'padding:5px',
 				width: 350,
-				autoScroll: true
+				autoScroll: true, 
 				// region: 'west'
 		});
 

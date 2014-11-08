@@ -84,8 +84,8 @@ Ext.onReady(function() {
 									url: "cgi-bin/rp_current.py",
 									params: {
 											start_date: 'dummy_value', 
-											end_date: 'dummy_value'
-											// rp_array: 'dummy_value'
+											end_date: 'dummy_value',
+											rp_array: 'dummy_value'
 									},
 									format: new OpenLayers.Format.GeoJSON(),
 							})
@@ -105,7 +105,7 @@ Ext.onReady(function() {
 							protocol: new OpenLayers.Protocol.HTTP({
 									url: "cgi-bin/rp_hist.py",
 									params: {
-											bp_value: 2002 
+											bp_value: 0 
 											// rp_array: 'dummy_value'
 									},
 									format: new OpenLayers.Format.GeoJSON()

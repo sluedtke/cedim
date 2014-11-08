@@ -24,6 +24,7 @@ form=cgi.FieldStorage()
 # Get data from fields
 start=form['start_date'].value
 end=form['end_date'].value
+rp_array=form['rp_array'].value
 
 # start="2014-07-02"
 # end="2014-07-07"

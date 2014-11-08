@@ -39,28 +39,28 @@ var map_hist = new OpenLayers.Map({
 
 // Vector base layers
 // all gauges for Germany
-gauges_ud = new OpenLayers.Layer.Vector("gauges_ud", {
+gauges_ud = new OpenLayers.Layer.Vector("Gauges", {
 				styleMap:gauge_styles 
 });
 
-gauges_hist = new OpenLayers.Layer.Vector("gauges_hist", {
+gauges_hist = new OpenLayers.Layer.Vector("Gauges", {
 				styleMap:gauge_styles 
 });
 
 //all rivers for Germany 
-base_river_ud = new OpenLayers.Layer.Vector("base_rivers_ud", {
+base_river_ud = new OpenLayers.Layer.Vector("River network", {
 				styleMap: base_river_styles
 });
 //all rivers for Germany 
-base_river_hist = new OpenLayers.Layer.Vector("base_rivers_hist", {
+base_river_hist = new OpenLayers.Layer.Vector("River network", {
 				styleMap: base_river_styles
 });
 
 // the color coded river block
-rivers_ud = new OpenLayers.Layer.Vector("rivers_ud", {
+rivers_ud = new OpenLayers.Layer.Vector("Classified river network", {
 });
 // the color coded river block
-rivers_hist = new OpenLayers.Layer.Vector("rivers_hist", {
+rivers_hist = new OpenLayers.Layer.Vector("Classified river network", {
 });
 
 
