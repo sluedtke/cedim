@@ -54,17 +54,31 @@ function update_rtp(start_date, end_date, bp_value, rp_array) {
         //
 		// //the return periods
 		rp_array=JSON.stringify(rp_array)
+
+
 		river_ud_ft.proxy.protocol.params.rp_array = rp_array;
 		river_ud_ft.autoLoad=true;
 
 		//Setting the parameters for the historic situation
-		// river_hist_ft.proxy.protocol.params.rp_array = rp_array;
+		river_hist_ft.proxy.protocol.params.rp_array = rp_array;
 		river_hist_ft.proxy.protocol.params.bp_value=bp_value.bp_value;
 		river_hist_ft.autoLoad=true;
 
 		// load the feature stores with the new parameters
 		river_ud_ft.load();
 		river_hist_ft.load();
+
+		// Update the LegendPanel
+		// http://www.geoext.org/pipermail/users/2013-August/003337.html
+		for(i=0; i<legend_panel.items.items.length; i++) {
+				// Note: 'Polygons' is the layer name
+				if(legend_panel.items.items[i].layer.name == 'Classified river network') {
+						legend_panel.items.items[i].setRules();
+						legend_panel.items.items[i].update()
+						break;
+				}
+		}
+
 };
 
 Ext.require([

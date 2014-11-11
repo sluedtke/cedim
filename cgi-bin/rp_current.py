@@ -25,14 +25,8 @@ form=cgi.FieldStorage()
 start=form['start_date'].value
 end=form['end_date'].value
 rp_array=form['rp_array'].value
+rp_array=json.loads(rp_array)
 
-# start="2014-07-02"
-# end="2014-07-07"
-
-# adding the absolute path of this file to the python search path, so we can
-# keep all the other files via symbolic links 
-# sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__))))
-# sys.path.append(os.path.join('/home/sluedtke/gfz/temp/kai/python_postgis/'))
 
 def connect(db_name, user, pwd, host):
     try:
@@ -54,15 +48,14 @@ def read_sql(sql_fn):
     sql = " ".join(fn.readlines())
     return(sql)
 
-
-json_array=(1.5, 2, 10)
-params=(start, end) + json_array
+params=[start, end]
+params=params+rp_array
 
 def classify_qmax(target_list, params):
 
     SQL=read_sql('../sql_files/rp_current.sql')
     placeholder= '%s'
-    placeholders= ', '.join(placeholder for unused in json_array)
+    placeholders= ', '.join(placeholder for unused in rp_array)
     SQL=string.replace(SQL, 'XXXX', placeholders)
 
     #data base connection and creation of cursor    

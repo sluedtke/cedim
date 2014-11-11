@@ -105,8 +105,8 @@ Ext.onReady(function() {
 							protocol: new OpenLayers.Protocol.HTTP({
 									url: "cgi-bin/rp_hist.py",
 									params: {
-											bp_value: 0 
-											// rp_array: 'dummy_value'
+											bp_value: 0,
+											rp_array: 'dummy_value'
 									},
 									format: new OpenLayers.Format.GeoJSON()
 							})

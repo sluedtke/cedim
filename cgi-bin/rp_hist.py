@@ -25,7 +25,9 @@ form=cgi.FieldStorage()
 # Get data from fields
 bp_value=form['bp_value'].value
 bp_value=int(float(bp_value))
-# bp_value=2002
+
+rp_array=form['rp_array'].value
+rp_array=json.loads(rp_array)
 
 # constrain the evaluation period to three weeks before current date
 if bp_value==1954:
@@ -66,15 +68,14 @@ def read_sql(sql_fn):
     return(sql)
 
 
-json_array=(1.5, 2, 10)
-params=(start, end) + json_array
-
+params=[start, end]
+params=params+rp_array
 
 def classify_qmax(target_list, params):
 
     SQL=read_sql('../sql_files/rp_hist.sql')
     placeholder= '%s'
-    placeholders= ', '.join(placeholder for unused in json_array)
+    placeholders= ', '.join(placeholder for unused in rp_array)
     SQL=string.replace(SQL, 'XXXX', placeholders)
 
     #data base connection and creation of cursor    
