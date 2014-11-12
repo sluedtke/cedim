@@ -51,8 +51,8 @@ sql_catchments="SELECT gid, ST_AsGeoJSON(ST_TRANSFORM(geom, 900913)) AS geom FRO
 sql_gauge="SELECT gid AS id, name, ST_AsGeoJSON(ST_TRANSFORM(geom, 900913)) AS geom FROM pegel_tbas;" 
 
 # sql river
-sql_river="SELECT gid AS id, number AS gauge, ST_AsGeoJSON(ST_TRANSFORM(geom, \
-        900913)) AS geom FROM ccm2_rivers;"
+sql_river="SELECT gid AS id, number AS gauge, ST_AsGeoJSON(ST_SIMPLIFY(ST_TRANSFORM(geom, \
+        900913), 600)) AS geom FROM ccm2_rivers;"
 
 
 ###############A#######################################################
