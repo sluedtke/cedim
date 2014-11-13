@@ -50,7 +50,7 @@ ORDER BY gauges
 ranked_q AS (
 SELECT 
 rp_code, gauges, rps, q_max, geom, diff, rank()
-OVER (PARTITION BY gauges ORDER BY diff DESC)
+OVER (PARTITION BY gauges ORDER BY diff ASC)
 FROM rp_select
 )
 --
