@@ -226,7 +226,7 @@ Ext.onReady(function() {
 								{ boxLabel: '2', name: 'rp_value', inputValue: 2, checked: true },
 								{ boxLabel: '5', name: 'rp_value', inputValue: 5, checked: true },
 								{ boxLabel: '10', name: 'rp_value', inputValue: 10},
-								{ boxLabel: '20', name: 'rp_value', inputValue: 20},
+								{ boxLabel: '25', name: 'rp_value', inputValue: 25},
 								{ boxLabel: '50', name: 'rp_value', inputValue: 50},
 								{ boxLabel: '100', name: 'rp_value', inputValue: 100, checked: true },
 						]
