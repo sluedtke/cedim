@@ -2,7 +2,7 @@ WITH
 temp_gauges AS ( 
 SELECT gid AS id,
  number AS gauge,
- ST_AsGeoJSON(ST_TRANSFORM(geom, 900913)) AS geom 
+ ST_AsGeoJSON(ST_SIMPLIFY(ST_TRANSFORM(geom, 900913), 600)) AS geom 
 FROM 
  ccm2_rivers
 ), 
