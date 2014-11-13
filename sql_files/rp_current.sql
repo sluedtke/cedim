@@ -56,7 +56,7 @@ FROM rp_select
 
 summed AS (
 SELECT 
-rp_code, gauges, rps, q_max, diff, rank,
+rp_code, gauges, rps, q_max, diff, geom, rank,
 ((sum(diff) OVER (PARTITION BY gauges)) +
 (sum(abs(diff)) OVER (PARTITION BY gauges))) AS sum_diff
 FROM ranked_q
@@ -65,7 +65,7 @@ FROM ranked_q
 under_rp AS (
 SELECT DISTINCT ON (gauges)
 -- gauges, q_max 
-rp_code, gauges, q_max, rps, (CAST(rank AS FLOAT)-1) AS rp_class
+rp_code, gauges, q_max, rps, (CAST(rank AS FLOAT)-1) AS rp_class, geom
 FROM summed
 WHERE
 sum_diff = 0
@@ -75,7 +75,7 @@ ORDER BY gauges, rps
 --
 classified_rp AS (
 SELECT DISTINCT ON (gauges)
-rp_code, gauges, q_max, rps, CAST(rank AS FLOAT) AS rp_class
+rp_code, gauges, q_max, rps, CAST(rank AS FLOAT) AS rp_class, geom
 FROM ranked_q
 WHERE
 diff >= 0 
@@ -88,7 +88,6 @@ SELECT * FROM classified_rp
 UNION ALL
 SELECT * FROM under_rp
 )
-
 
 SELECT * FROM all_rp
 
