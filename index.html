@@ -1,7 +1,7 @@
 <html>
 <head>
 
-	<title> A Basic GeoExt Page </title>
+	<title> Rapid flood event analysis in Germany </title>
 
 	<!-- Load the ExtJS stylesheet -->
 	<link rel="stylesheet" type="text/css"
@@ -15,9 +15,9 @@
 
 	<script type="text/javascript" src="./javascript/loader.js"></script>
 	<script src="./javascript/colorbrewer.js" ></script>
-	<script src="./javascript/layer_styles.js" ></script>
 
 	<script type="text/javascript" src="./javascript/base_layers.js"></script>
+	<script src="./javascript/layer_styles.js" ></script>
 	<script type="text/javascript" src="./javascript/extjs_comp.js"></script>
 	<script type="text/javascript" src="./javascript/postgis_stores.js"></script>
 	<link rel="stylesheet" type="text/css" href="./css_base/style_base.css">
@@ -25,6 +25,11 @@
 
 </head>
 <body>
-	<div id="mainpanel" ></div>
+	<div id="container">
+		<div id="header" >
+			<h2>Flood event explorer</h2>
+		</div>
+		<div id="mainpanel" ></div>
+	</div>
 </body>
 </html>

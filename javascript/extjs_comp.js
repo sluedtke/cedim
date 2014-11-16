@@ -7,18 +7,36 @@ function update_rtp(start_date, end_date, bp_value, rp_array) {
 		// and the array itself
 		var rp_array=Ext.getCmp('rp_value').getValue().rp_value
 		// dummy var to push the rules into
-		var rules = [];
+		rules = [];
+
+		// a rule for the rp_class 0
+		var temp=new OpenLayers.Rule({
+
+				title: "< " + rp_array[0],
+				filter: new OpenLayers.Filter.Comparison({
+						type: OpenLayers.Filter.Comparison.EQUAL_TO,
+						property: "rp_class",
+						value: 0 
+				}),
+				symbolizer: {
+						// rp_length defines the colors to chose from ,color index the position in that vector
+						strokeColor: '#0000CC',
+						strokeWidth: 2
+				}
+		});
+		
+		rules.push(temp);
+
+
 		// first class we start with
 		rp_class=1;
-
 		for(i=0; i<rp_length; i++){
+				text=rp_array[i] + " years";
 
-				// get the choosen return period at index i
-				text="return period: " + rp_array[i];
 				// the colors are inverted .. 
 				color_index=rp_length-(i+1);
 
-				temp=new OpenLayers.Rule({
+				var temp=new OpenLayers.Rule({
 						title: text, 
 						filter: new OpenLayers.Filter.Comparison({
 								type: OpenLayers.Filter.Comparison.EQUAL_TO,
@@ -28,7 +46,7 @@ function update_rtp(start_date, end_date, bp_value, rp_array) {
 						symbolizer: {
 								// rp_length defines the colors to chose from ,color index the position in that vector
 								strokeColor: colorbrewer.RdYlGn[rp_length][color_index],
-								strokeWidth: 4
+								strokeWidth: 3
 						}
 				});
 				// increment by one
@@ -36,6 +54,8 @@ function update_rtp(start_date, end_date, bp_value, rp_array) {
 				// add to dummy variable 
 				rules.push(temp);
 		};
+
+		// Assign to object
 		var river_styles= new OpenLayers.StyleMap(new OpenLayers.Style({}, {rules: rules}))
 
 		rivers_hist.styleMap=river_styles;
@@ -72,7 +92,7 @@ function update_rtp(start_date, end_date, bp_value, rp_array) {
 		// http://www.geoext.org/pipermail/users/2013-August/003337.html
 		for(i=0; i<legend_panel.items.items.length; i++) {
 				// Note: 'Polygons' is the layer name
-				if(legend_panel.items.items[i].layer.name == 'Classified river network') {
+				if(legend_panel.items.items[i].layer.name == "Return periods"){
 						legend_panel.items.items[i].setRules();
 						legend_panel.items.items[i].update()
 						break;
@@ -101,7 +121,7 @@ Ext.onReady(function() {
 				title: 'The current situation in Germany',
 				id: 'mappanel_ud',
 				region: "west",
-				width: 400,
+				width: 430,
 				map: map_ud,
 				layers: [base_layer_ud, gauges_ud, base_river_ud, rivers_ud],
 				zoom: zoom,
@@ -111,14 +131,30 @@ Ext.onReady(function() {
 		//----------------------------------//
 
 		var	mappanel_hist = Ext.create('GeoExt.panel.Map', {
-				title: 'A given historic situation',
+				title: 'A historic flood event',
 				id: 'mappanel_hist',
 				region: "east",
-				width: 400,
+				width: 430,
 				map: map_hist,
 				layers: [base_layer_hist, gauges_hist, base_river_hist, rivers_hist],
 				zoom: zoom,
 				center: lonlat
+		});
+
+		//----------------------------------//
+		//
+		legend_panel = Ext.create('GeoExt.panel.Legend', {
+				title: "Legend",
+				width: 140,
+				defaults: {
+						labelCls: 'mylabel',
+						padding: 10,
+				},
+				layout: {
+						type: 'table',
+						columns: 1
+				},
+				autoScroll: true, 
 		});
 
 		//----------------------------------//
@@ -129,15 +165,12 @@ Ext.onReady(function() {
 		var end_default=new Date();
 		end_default.setDate(end_default.getDate()-1);
 
+		var setting_panel_height=130
 
-		var daterange =Ext.create('Ext.panel.Panel', {
+		var daterange =Ext.create('Ext.form.Panel', {
 				title: 'Date range',
-				width: 250,
-				layout: {
-						type: 'vbox',       // Arrange child items vertically
-						align: 'stretch',    // Each takes up full width
-						padding: 10
-				},
+				columnWidth: 0.4,
+				height: setting_panel_height,
 				items: [
 						{
 						//------------------------//
@@ -147,6 +180,7 @@ Ext.onReady(function() {
 						id: 'start_date',
 						fieldLabel: 'Start date',
 						hideLabel: false,
+						padding: 10,
 						value: start_default
 				},{
 						//------------------------//
@@ -156,98 +190,40 @@ Ext.onReady(function() {
 						id: 'end_date',
 						fieldLabel: 'End date',
 						hideLabel: false,
+						padding: 10,
 						value: end_default
 				}
 				]
 		});
 
-		var ref_period = Ext.create('Ext.panel.Panel', {
-				title: 'Reference period',
-				width: 250,
-				layout: {
-						type: 'vbox',       // Arrange child items vertically
-						align: 'stretch',    // Each takes up full width
-						padding: 10
-				},
+		var ref_period = Ext.create('Ext.form.Panel', {
+				title: 'Historic flood event',
+				// width: 150,
+				columnWidth: 0.2,
+				height: setting_panel_height,
 				items: [
 						{
 						xtype: 'radiogroup',
 						// fieldLabel: 'Choose a reference period',
 						name: 'bp_value',
 						id: 'bp_value',
-						// Arrange checkboxes into two columns, distributed vertically
-						columns: 2,
 						padding: 10,
+						// Arrange checkboxes into two columns, distributed vertically
+						columns: 1,
 						vertical: true,
 						items: [
 								{ boxLabel: 'Year 1954', name: 'bp_value', inputValue: 1954},
 								{ boxLabel: 'Year 2002', name: 'bp_value', inputValue: 2002, checked: true },
-								{ boxLabel: 'Year 2012', name: 'bp_value', inputValue: 2013}
+								{ boxLabel: 'Year 2013', name: 'bp_value', inputValue: 2013}
 						]
 				}]
 		});
 
-		rt_period = Ext.create('Ext.panel.Panel', {
-				title: 'Return periods',
-				width: 250,
-				layout: {
-						type: 'vbox',       // Arrange child items vertically
-						align: 'stretch',    // Each takes up full width
-						padding: 10,
-						frame: false
-				},
-				items: [
-						{
-						xtype: 'checkboxgroup',
-						// fieldLabel: 'Choose a set of return periods',
-						name: 'rp_value',
-						id: 'rp_value',
-						// Arrange checkboxes into two columns, distributed vertically
-						columns: 2,
-						padding: 10,
-						// copied from 
-						// http://stackoverflow.com/questions/13487320/restrict-selected-checkboxes-to-number-of-5
-						// listeners: {
-						// 		change: function(cb, nv, ov) {
-						// 				if(Ext.isArray(nv.rp_value)) {
-						// 						if(nv.rp_value.length > 3){
-						// 								cb.markInvalid('You can select only 5!');
-						// 						} else {
-						// 								cb.clearInvalid(); 
-						// 						}
-						// 				} else {
-						// 						cb.markInvalid('You need to select at least 2!');
-						// 				}
-						// 		}
-						// },
-						vertical: true,
-						items: [
-								{ boxLabel: '1', name: 'rp_value', inputValue: 1},
-								{ boxLabel: '2', name: 'rp_value', inputValue: 2, checked: true },
-								{ boxLabel: '5', name: 'rp_value', inputValue: 5, checked: true },
-								{ boxLabel: '10', name: 'rp_value', inputValue: 10},
-								{ boxLabel: '25', name: 'rp_value', inputValue: 25},
-								{ boxLabel: '50', name: 'rp_value', inputValue: 50},
-								{ boxLabel: '100', name: 'rp_value', inputValue: 100, checked: true },
-						]
-				}
-				]
-		});
-
-		var submit = Ext.create('Ext.panel.Panel', {
-				width: 250,
-				layout: {
-						type: 'vbox',       // Arrange child items vertically
-						align: 'stretch',    // Each takes up full width
-						padding: 10
-				},
-				defaults: {
-						frame: false
-				},
-				items: [
-						{
-						//------------------------//
-						xtype: 'button',
+		//----------------------------------//
+		//
+		// var submit = Ext.create('Ext.panel.Panel', {
+		var submit = Ext.create('Ext.button.Button', {
+				// 		bodyPadding: 10,
 						text: 'Spin the wheel',
 						listeners: {
 								click: function() {
@@ -261,62 +237,91 @@ Ext.onReady(function() {
 										)
 								}
 						}
-				}
-				]
 
 		});
 
 		//----------------------------------//
 		//
-		legend_panel = Ext.create('GeoExt.panel.Legend', {
-				title: "Legend",
-				defaults: {
-						labelCls: 'mylabel',
-						style: 'padding:5px'
-				},
-				bodyStyle: 'padding:5px',
-				width: 350,
-				autoScroll: true, 
-				// region: 'west'
+		var rt_period = Ext.create('Ext.form.Panel', {
+				title: 'Return periods',
+				// width: 350,
+				columnWidth: 0.4,
+				height: setting_panel_height,
+				items: [
+						{
+						xtype: 'checkboxgroup',
+						// fieldLabel: 'Choose a set of return periods',
+						name: 'rp_value',
+						id: 'rp_value',
+						// Arrange checkboxes into 4 columns, distributed vertically
+						columns: 4,
+						vertical: true,
+						items: [
+								{ boxLabel: '1', name: 'rp_value', inputValue: 1, padding: 5},
+								{ boxLabel: '1.5', name: 'rp_value', inputValue: 1.5, padding: 5},
+								{ boxLabel: '2', name: 'rp_value', inputValue: 2, checked: true, padding: 5},
+								{ boxLabel: '5', name: 'rp_value', inputValue: 5, checked: true, padding: 5},
+								{ boxLabel: '10', name: 'rp_value', inputValue: 10, padding: 5},
+								{ boxLabel: '25', name: 'rp_value', inputValue: 25, padding: 5},
+								{ boxLabel: '50', name: 'rp_value', inputValue: 50, padding: 5},
+								{ boxLabel: '75', name: 'rp_value', inputValue: 75, padding: 5},
+								{ boxLabel: '100', name: 'rp_value', inputValue: 100, checked: true, padding: 5},
+						]
+				}
+				],
+				dockedItems: [{
+						xtype: 'toolbar',
+						dock: 'right',
+						// defaults: {minWidth: minButtonWidth},
+						items: [
+								// {xtype: 'component', flex: 0.2},
+								submit
+						], 
+						layout: {
+								pack: 'center' 
+						}	
+				}]
 		});
 
 		//----------------------------------//
 		//
 		// var toolbar =Ext.create('Ext.toolbar.Toolbar', {
 		var toolbar =Ext.create('Ext.panel.Panel', {
-				width: 250,
+				width: 1000,
+				// title: "Setttings",
+				height: setting_panel_height,
+				colspan: 3,
 				layout: {
-						type: 'vbox',
-						// align: 'stretch',    // Each takes up full width
-						// padding: 10,
+						type: 'column',
+						align: 'stretch',    // Each takes up full width
+						columns: 3
 				},
-				items: [daterange, ref_period, rt_period, submit, legend_panel],
-				defaults: {
-						frame: false
-				}
+				items: [daterange, ref_period, rt_period],
 		});
 
 		//----------------------------------//
-		//----------------------------------//
 		// main panel
-		Ext.create('Ext.panel.Panel', {
-				id:'main-panel',
+		var mainpanel=Ext.create('Ext.panel.Panel', {
+				id:'mainanel',
 				// baseCls:'x-plain',
 				renderTo: 'mainpanel',
 				layout: {
 						type: 'table',
-						// type: 'border'
-						// The total column count must be specified here
 						columns: 3
 				},
-				items: [mappanel_ud, toolbar, mappanel_hist],
-				defaults: {
-						height: 1200,
-						frame: false
-				}
-		});
 
-		//----------------------------------//
+				defaults: { 
+					   	// collapsible: true,
+						// split: true,
+						height: 600,
+				},
+				items: [
+						mappanel_ud,
+						mappanel_hist,
+						legend_panel,
+						toolbar
+				]
+		});
 
 		// Adapted from
 		// http://osgeo-org.1560.x6.nabble.com/Synchronize-position-and-zoom-of-two-maps-td3911331.html

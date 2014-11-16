@@ -1,10 +1,10 @@
 // General region and projection settings
 //
-var lon =10.3;
-var lat =51.5;
-var zoom = 6.4;
+var lon =10.5;
+var lat =51.0;
+var zoom = 6.35;
 
-var map, base_layer, gauges, basins, lonlat, panel, gridPanel;
+// var map, base_layer, gauges, basins, lonlat, panel, gridPanel;
 var prj4326 = new OpenLayers.Projection("EPSG:4326");
 var prjmerc = new OpenLayers.Projection("EPSG:900913");
 var zoom_lev = 20;
@@ -36,31 +36,29 @@ var map_hist = new OpenLayers.Map({
 						  displayProjection: prj4326
 });
 
+map_ud.restrictedExtent = map_ud.getExtent();
+map_hist.restrictedExtent = map_hist.getExtent();
 
 // Vector base layers
 // all gauges for Germany
 gauges_ud = new OpenLayers.Layer.Vector("Gauges", {
-				styleMap:gauge_styles 
 });
 
 gauges_hist = new OpenLayers.Layer.Vector("Gauges", {
-				styleMap:gauge_styles 
 });
 
 //all rivers for Germany 
 base_river_ud = new OpenLayers.Layer.Vector("River network", {
-				styleMap: base_river_styles
 });
 //all rivers for Germany 
 base_river_hist = new OpenLayers.Layer.Vector("River network", {
-				styleMap: base_river_styles
 });
 
 // the color coded river block
-rivers_ud = new OpenLayers.Layer.Vector("Classified river network", {
+rivers_ud = new OpenLayers.Layer.Vector("Return periods", {
 });
 // the color coded river block
-rivers_hist = new OpenLayers.Layer.Vector("Classified river network", {
+rivers_hist = new OpenLayers.Layer.Vector("Return periods", {
 });
 
 

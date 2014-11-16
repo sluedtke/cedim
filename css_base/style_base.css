@@ -1,7 +1,22 @@
-#mainpanel {
-    background-color: #ffffff;
-    width: 1050px;
+#container {
 	margin-left: auto ;
 	margin-right: auto ;
-    padding: 10px; 
+    width: 1000px;
+    position: relative;
+    background-color: #ffffff;
 }
+
+#mainpanel {
+	width: 100%;
+    height: 100%;
+}
+
+/* #gisbar .x-panel-body { */
+/* 	text-align: center, */
+/* 	/* background: #ffe; */ */
+/*     background-color: #555; */
+/*     color: #15428B; */
+/* } */
+/* #gisbar .x-panel-header-text { */
+/*     color:#555; */
+/* } */
