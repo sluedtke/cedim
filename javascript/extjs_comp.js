@@ -222,6 +222,7 @@ Ext.onReady(function() {
 		var submit = Ext.create('Ext.button.Button', {
 				// 		bodyPadding: 10,
 				text: 'Spin the wheel',
+				border: false,
 				listeners: {
 						click: function() {
 								update_rtp(
@@ -244,6 +245,7 @@ Ext.onReady(function() {
 				// width: 350,
 				columnWidth: 0.4,
 				height: setting_panel_height,
+				// border: false,
 				items: [
 						{
 						xtype: 'checkboxgroup',
@@ -251,7 +253,7 @@ Ext.onReady(function() {
 						name: 'rp_value',
 						id: 'rp_value',
 						// Arrange checkboxes into 4 columns, distributed vertically
-						columns: 4,
+						columns: 3,
 						vertical: true,
 						items: [
 								{ boxLabel: '1', name: 'rp_value', inputValue: 1, padding: 5},
@@ -269,13 +271,14 @@ Ext.onReady(function() {
 				dockedItems: [{
 						xtype: 'toolbar',
 						dock: 'right',
+						border: false,
 						// defaults: {minWidth: minButtonWidth},
 						items: [
 								submit
 						], 
+						border: false,
 						layout: {
 								pack: 'center',
-								frame: false
 						}	
 				}]
 		});
