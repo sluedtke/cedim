@@ -90,7 +90,8 @@ Ext.onReady(function() {
 									format: new OpenLayers.Format.GeoJSON(),
 							})
 					}), 
-					autoLoad: false
+					autoLoad: false,
+					LoadMask: true
 			});
 
 			//----------------------------------//
@@ -111,8 +112,21 @@ Ext.onReady(function() {
 									format: new OpenLayers.Format.GeoJSON()
 							})
 					}), 
-					autoLoad: false
+					autoLoad: false,
+					LoadMask: true
 			});
+
+		load_mask_ud = new Ext.LoadMask(
+				Ext.getCmp('mappanel_ud'),
+				{
+						msg: 'Loading current data...', store: river_ud_ft
+				});
+
+		load_mask_hist = new Ext.LoadMask(
+				Ext.getCmp('mappanel_hist'),
+				{
+						msg: 'Loading historical data...', store: river_hist_ft
+				});
 
 
 });

@@ -1,15 +1,22 @@
 #container {
-	margin-left: auto ;
-	margin-right: auto ;
-    width: 1000px;
-    position: relative;
-    background-color: #ffffff;
+		margin-left: auto ;
+		margin-right: auto ;
+		width: 1000px;
+		position: relative;
+		background-color: #ffffff;
 }
 
 #mainpanel {
-	width: 100%;
-    height: 100%;
+		width: 100%;
+		height: 100%;
 }
+
+#header {
+        padding-top: 10px; 
+        padding-bottom: 10px; 
+		text-align: center;
+}
+
 
 /* #gisbar .x-panel-body { */
 /* 	text-align: center, */

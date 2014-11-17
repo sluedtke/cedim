@@ -86,7 +86,10 @@ function update_rtp(start_date, end_date, bp_value, rp_array) {
 
 		// load the feature stores with the new parameters
 		river_ud_ft.load();
+		load_mask_ud.show();
+
 		river_hist_ft.load();
+		load_mask_hist.show();
 
 		// Update the LegendPanel
 		// http://www.geoext.org/pipermail/users/2013-August/003337.html
@@ -110,12 +113,6 @@ Ext.require([
 ]);
 
 Ext.onReady(function() {
-
-		var arr_layers=[];
-		// arr_layers.push(gauges_ud);
-		arr_layers.push(base_river_ud);
-		arr_layers.push(rivers_ud);
-
 
 		mappanel_ud = Ext.create('GeoExt.panel.Map', {
 				title: 'The current situation in Germany',
@@ -224,19 +221,19 @@ Ext.onReady(function() {
 		// var submit = Ext.create('Ext.panel.Panel', {
 		var submit = Ext.create('Ext.button.Button', {
 				// 		bodyPadding: 10,
-						text: 'Spin the wheel',
-						listeners: {
-								click: function() {
-										update_rtp(
-												Ext.getCmp('start_date').getValue(),
-												Ext.getCmp('end_date').getValue(), 
-												Ext.getCmp('bp_value').getValue(),
-												// the next one is an array
-												// and not a single value
-												Ext.getCmp('rp_value').getValue()
-										)
-								}
+				text: 'Spin the wheel',
+				listeners: {
+						click: function() {
+								update_rtp(
+										Ext.getCmp('start_date').getValue(),
+										Ext.getCmp('end_date').getValue(), 
+										Ext.getCmp('bp_value').getValue(),
+										// the next one is an array
+										// and not a single value
+										Ext.getCmp('rp_value').getValue()
+								)
 						}
+				}
 
 		});
 
@@ -274,11 +271,11 @@ Ext.onReady(function() {
 						dock: 'right',
 						// defaults: {minWidth: minButtonWidth},
 						items: [
-								// {xtype: 'component', flex: 0.2},
 								submit
 						], 
 						layout: {
-								pack: 'center' 
+								pack: 'center',
+								frame: false
 						}	
 				}]
 		});
@@ -323,6 +320,9 @@ Ext.onReady(function() {
 				]
 		});
 
+
+		//----------------------------------//
+		//----------------------------------//
 		// Adapted from
 		// http://osgeo-org.1560.x6.nabble.com/Synchronize-position-and-zoom-of-two-maps-td3911331.html
 		var c1, c2, z1, z2;
@@ -352,5 +352,7 @@ Ext.onReady(function() {
 						}
 				}); 
 		}; 
+
+
 });
 
