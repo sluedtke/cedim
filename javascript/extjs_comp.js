@@ -117,8 +117,10 @@ Ext.onReady(function() {
 		mappanel_ud = Ext.create('GeoExt.panel.Map', {
 				title: 'The current situation in Germany',
 				id: 'mappanel_ud',
-				region: "west",
-				width: 430,
+				region: "center",
+				minWidth: 430,
+				maxWidth: 430,
+				// width: 430,
 				map: map_ud,
 				layers: [base_layer_ud, gauges_ud, base_river_ud, rivers_ud],
 				zoom: zoom,
@@ -131,7 +133,9 @@ Ext.onReady(function() {
 				title: 'A historic flood event',
 				id: 'mappanel_hist',
 				region: "east",
-				width: 430,
+				minWidth: 430,
+				maxWidth: 430,
+				// width: 430,
 				map: map_hist,
 				layers: [base_layer_hist, gauges_hist, base_river_hist, rivers_hist],
 				zoom: zoom,
@@ -142,7 +146,11 @@ Ext.onReady(function() {
 		//
 		legend_panel = Ext.create('GeoExt.panel.Legend', {
 				title: "Legend",
-				width: 140,
+				region: 'west',
+				// width: 140,
+				minWidth: 400,
+				maxWidth: 600,
+				collapsible: true,
 				defaults: {
 						labelCls: 'mylabel',
 						padding: 10,
@@ -287,7 +295,9 @@ Ext.onReady(function() {
 		//
 		// var toolbar =Ext.create('Ext.toolbar.Toolbar', {
 		var toolbar =Ext.create('Ext.panel.Panel', {
-				width: 1000,
+				// width: 1000,
+				minWidth: 600,
+				region: 'south',
 				// title: "Setttings",
 				height: setting_panel_height,
 				colspan: 3,
@@ -300,21 +310,9 @@ Ext.onReady(function() {
 		});
 
 		//----------------------------------//
-		// main panel
-		var mainpanel=Ext.create('Ext.panel.Panel', {
-				id:'mainanel',
-				// baseCls:'x-plain',
+		Ext.create('Ext.container.Viewport', {
+				layout: 'border',
 				renderTo: 'mainpanel',
-				layout: {
-						type: 'table',
-						columns: 3
-				},
-
-				defaults: { 
-					   	// collapsible: true,
-						// split: true,
-						height: 600,
-				},
 				items: [
 						mappanel_ud,
 						mappanel_hist,
