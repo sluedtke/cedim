@@ -104,12 +104,21 @@ function update_rtp(start_date, end_date, bp_value, rp_array) {
 
 };
 
+
 Ext.require([
     'Ext.form.*',
     'Ext.layout.container.Border',
+    'Ext.container.Viewport',
+    'Ext.tree.plugin.TreeViewDragDrop',
     'GeoExt.panel.Map', 
     'GeoExt.container.VectorLegend',
-    'GeoExt.panel.Legend'
+    'GeoExt.panel.Legend',
+    'GeoExt.tree.Panel',
+    'GeoExt.tree.OverlayLayerContainer',
+    'GeoExt.tree.BaseLayerContainer',
+    'GeoExt.data.LayerTreeModel',
+    'GeoExt.tree.View',
+    'GeoExt.tree.Column',
 ]);
 
 Ext.onReady(function() {
@@ -124,7 +133,7 @@ Ext.onReady(function() {
 				map: map_ud,
 				layers: [base_layer_ud, gauges_ud, base_river_ud, rivers_ud],
 				zoom: zoom,
-				center: lonlat
+				center: lonlat, 
 		}); 
 
 		//----------------------------------//
@@ -161,6 +170,60 @@ Ext.onReady(function() {
 				},
 				autoScroll: true, 
 		});
+
+
+        // var store = Ext.create('Ext.data.TreeStore', {
+        //     model: 'GeoExt.data.LayerTreeModel',
+        //     root: {
+        //         expanded: true,
+        //         children: [
+        //             {
+        //                 plugins: ['gx_overlaylayercontainer'],
+        //                 text: "Base Maps",
+        //                 expanded: true
+        //             }
+        //         ]
+        //     }
+        // });
+        //
+        var store = Ext.create('Ext.data.TreeStore', {
+            model: 'GeoExt.data.LayerTreeModel',
+            root: {
+                plugins: [{
+                    ptype: "gx_overlaylayercontainer",
+                    loader: {
+                        createNode: function(attr) {
+                            // add a WMS legend to each node created
+                            attr.component = {
+                                xtype: "gx_vectorlegend",
+                                layerRecord: mappanel_ud.layers.getByLayer(attr.layer),
+                                showTitle: false,
+                                // custom class for css positioning
+                                // see tree-legend.html
+                                cls: "legend"
+                            };
+                            return GeoExt.tree.LayerLoader.prototype.createNode.call(this, attr);
+                        }
+                    }
+                }]
+            }
+        });
+        
+
+        // create the tree with the configuration from above
+        tree = Ext.create('GeoExt.tree.Panel', {
+            border: true,
+            region: "east",
+            title: "Layers",
+            width: 250,
+            split: true,
+            collapsible: true,
+            autoScroll: true,
+            store: store,
+            rootVisible: false,
+            lines: false,
+        });
+
 
 		//----------------------------------//
 
@@ -310,6 +373,9 @@ Ext.onReady(function() {
 		});
 
 		//----------------------------------//
+		//----------------------------------//
+		//----------------------------------//
+		//----------------------------------//
 		Ext.create('Ext.container.Viewport', {
 				layout: 'border',
 				renderTo: 'mainpanel',
@@ -317,6 +383,7 @@ Ext.onReady(function() {
 						mappanel_ud,
 						mappanel_hist,
 						legend_panel,
+                        tree,
 						toolbar
 				]
 		});
