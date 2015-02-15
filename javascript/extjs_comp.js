@@ -124,16 +124,17 @@ Ext.require([
 
 Ext.onReady(function() {
 
+  var map_panel_height=598;
+
   var	mappanel_ud = Ext.create('GeoExt.panel.Map', {
     title: 'The current situation in Germany',
     id: 'mappanel_ud',
-    minWidth: 430,
-    maxWidth: 630,
-    // width: 430,
+    height:  map_panel_height,
+    columnWidth: 0.5,
     map: map_ud,
     layers: [base_layer_ud, gauges_ud, base_river_ud, rivers_ud],
     zoom: zoom,
-    center: lonlat, 
+    center: lonlat
   }); 
 
   //----------------------------------//
@@ -141,9 +142,8 @@ Ext.onReady(function() {
   var	mappanel_hist = Ext.create('GeoExt.panel.Map', {
     title: 'A historic flood event',
     id: 'mappanel_hist',
-    minWidth: 430,
-    maxWidth: 630,
-    // width: 430,
+    height: map_panel_height, 
+    columnWidth: 0.5,
     map: map_hist,
     layers: [base_layer_hist, gauges_hist, base_river_hist, rivers_hist],
     zoom: zoom,
@@ -152,16 +152,11 @@ Ext.onReady(function() {
 
   //----------------------------------//
   //
-  var  map_container=Ext.create('Ext.container.Container', {
+  var  map_panel=Ext.create('Ext.container.Container', {
     // width: 1000,
     region: "center",
-    minWidth: 600,
     autoScroll: true,
-    // title: "Setttings",
-    layout: {
-      type: 'hbox', 
-      align: 'stretch'    // Each takes up full width
-    },
+    layout: 'column',
     items: [mappanel_ud, mappanel_hist],
   });
 
@@ -219,9 +214,10 @@ Ext.onReady(function() {
     title: "Navigation",
     region: "west",
     width: 250,
+    height: 600, 
     autoScroll: true,
-    layout:'border',
     collapsible: true,
+    layout:'border',
     defaults: {
       // collapsible: true,
       split: true,
@@ -229,7 +225,24 @@ Ext.onReady(function() {
     },
     items: [tree_panel, legend_panel],
   });
+
   //----------------------------------//
+  // put map and navigation into one container
+  //
+  var  center_cont=Ext.create('Ext.panel.Panel', {
+    id: "center_cont",
+    region: "center",
+    width: 1050,
+    height: 600, 
+    autoScroll: true,
+    // collapsible: true,
+    layout:'border',
+    defaults: {
+      split: true,
+      // align: 'stretch'    // Each takes up full width
+    },
+    items: [nav_panel, map_panel],
+  });
 
   var start_default=new Date();
   start_default.setDate(start_default.getDate()-14);
@@ -361,14 +374,14 @@ Ext.onReady(function() {
   //----------------------------------//
   var toolbar =Ext.create('Ext.panel.Panel', {
     // width: 1000,
-    minWidth: 600,
+    minWidth: 850,
     region: 'south',
     // title: "Setttings",
     height: setting_panel_height,
     colspan: 3,
     layout: {
       type: 'column',
-      align: 'stretch',    // Each takes up full width
+      // align: 'stretch',    // Each takes up full width
       columns: 3
     },
     items: [daterange, ref_period, rt_period],
@@ -376,17 +389,32 @@ Ext.onReady(function() {
 
 
   //----------------------------------//
-  //----------------------------------//
-  //----------------------------------//
-  Ext.create('Ext.container.Viewport', {
-    layout: 'border',
+  // main panel
+  var mainpanel=Ext.create('Ext.panel.Panel', {
+    id:'mainanel',
+    // baseCls:'x-plain',
     renderTo: 'mainpanel',
-    items: [nav_panel,
-            map_container,
+    // layout: 'border',
+    width: 1050,
+    layout: {
+      type: 'table',
+      columns: 1
+    },
+    defaults: { 
+      // collapsible: true,
+      split: true,
+      // height: 600,
+    },
+    // layout:'border',
+    // defaults: {
+      // collapsible: true,
+      // split: true,
+      // bodyStyle: 'padding:15px'
+    // },
+    items: [center_cont, 
             toolbar
     ]
   });
-
 
   //----------------------------------//
   //----------------------------------//
