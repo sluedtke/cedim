@@ -63,8 +63,13 @@ base_river_hist = new OpenLayers.Layer.Vector("River network", {
 // the color coded river block
 rivers_ud = new OpenLayers.Layer.Vector("Return periods", {
 });
+
 // the color coded river block
 rivers_hist = new OpenLayers.Layer.Vector("Return periods", {
+});
+
+// inundation_maps
+inund_maps_ud = new OpenLayers.Layer.Vector("Inundation maps", {
 });
 
 

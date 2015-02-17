@@ -116,6 +116,28 @@ Ext.onReady(function() {
 					LoadMask: true
 			});
 
+			//----------------------------------//
+			inund_maps_ud_ft = new Ext.create("GeoExt.data.FeatureStore", {
+					layer: inund_maps_ud,
+					fields: [
+							{name: 'id', type: 'numeric'},
+							{name: 'date', type: 'string'}
+					],
+					proxy: new Ext.create("GeoExt.data.proxy.Protocol", {
+							protocol: new OpenLayers.Protocol.HTTP({
+									type: 'ajax',
+									url: "cgi-bin/inund_maps_current.py",
+									params: {
+											start_date: 'dummy_value', 
+											end_date: 'dummy_value',
+									},
+									format: new OpenLayers.Format.GeoJSON(),
+							})
+					}), 
+					autoLoad: true, 
+					LoadMask: true
+			});
+
 		load_mask_ud = new Ext.LoadMask(
 				Ext.getCmp('mappanel_ud'),
 				{

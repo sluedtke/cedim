@@ -132,7 +132,7 @@ Ext.onReady(function() {
     height:  map_panel_height,
     columnWidth: 0.5,
     map: map_ud,
-    layers: [base_layer_ud, gauges_ud, base_river_ud, rivers_ud],
+    layers: [base_layer_ud, gauges_ud, base_river_ud, rivers_ud, inund_maps_ud],
     zoom: zoom,
     center: lonlat
   }); 
