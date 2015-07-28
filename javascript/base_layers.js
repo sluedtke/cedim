@@ -21,7 +21,12 @@ bounds.extend(new OpenLayers.LonLat(1692295.4227907, 7308615.4800631));
 bounds.toBBOX();
 
 var theme="toner-background"
-var base_layer_ud = new OpenLayers.Layer.Stamen(theme);
+// var base_layer_ud = new OpenLayers.Layer.Stamen(theme);
+
+var base_layer_ud = new OpenLayers.Layer.OSM(
+        'http://tile.openstreetmap.de/${z}/${x}/${y}.png'
+);
+
 // var base_layer_ud = new OpenLayers.Layer.Stamen("toner-lite");
 var map_ud = new OpenLayers.Map({
 						  // maxResolution: max_res,
