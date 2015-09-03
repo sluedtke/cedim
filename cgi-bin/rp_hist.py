@@ -17,8 +17,8 @@ import cgitb
 from datetime import date, timedelta
 import pdb
 import string 
-
 cgitb.enable()  # for troubleshooting
+
 form=cgi.FieldStorage()
 
 
@@ -73,7 +73,7 @@ params=params+rp_array
 
 def classify_qmax(target_list, params):
 
-    SQL=read_sql('../sql_files/rp_hist.sql')
+    SQL=read_sql('../sql_files/rp_query.sql')
     placeholder= '%s'
     placeholders= ', '.join(placeholder for unused in rp_array)
     SQL=string.replace(SQL, 'XXXX', placeholders)
@@ -88,14 +88,17 @@ def classify_qmax(target_list, params):
     rps_all = cur.fetchall()
 
     for rps in rps_all:
-        attr = {'number': rps['gauges'], 'qmax':rps['q_max'],
-                'rp_class':rps['rp_class'],
-                'geom': json.loads(rps['geom'])}
+        attr = {'number' : rps['gauges'],
+                'qmax' : rps['q_max'],
+                'rp_class' : rps['rp_class'],
+                'geom' : json.loads(rps['geom'])
+                }
+
         target_list.append(attr)
 
     return target_list
 
-################A#######################################################
+#######################################################################
 def create_featuresCollection(query):
     features=[]
     for query_row in query:
@@ -121,7 +124,7 @@ def create_featuresCollection(query):
         }
     feat_coll=json.dumps(feat_coll)
     return(feat_coll)
-################A#######################################################
+#######################################################################
 
 gauge_attributes=[]
 temp=classify_qmax(gauge_attributes, params)

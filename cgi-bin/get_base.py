@@ -29,6 +29,8 @@ form=cgi.FieldStorage()
 
 # Get data from fields
 query=form['query'].value
+
+# query="river"
 # query="gauge"
 
 ######################################################################
@@ -53,7 +55,6 @@ sql_gauge="SELECT gid AS id, name, ST_AsGeoJSON(ST_TRANSFORM(geom, 900913)) AS g
 # sql river
 sql_river="SELECT gid AS id, number AS gauge, ST_AsGeoJSON(ST_SIMPLIFY(ST_TRANSFORM(geom, \
         900913), 600)) AS geom FROM ccm2_rivers;"
-
 
 ###############A#######################################################
 
@@ -100,5 +101,6 @@ def create_featuresCollection(query):
 
 geo_str=create_featuresCollection(rows)
 print "Content-type: text/javascript\n\n";
+# print 'Content-Type: application/json\n\n'
 print geo_str
 

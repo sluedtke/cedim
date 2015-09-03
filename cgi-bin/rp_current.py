@@ -53,7 +53,7 @@ params=params+rp_array
 
 def classify_qmax(target_list, params):
 
-    SQL=read_sql('../sql_files/rp_current.sql')
+    SQL=read_sql('../sql_files/rp_query.sql')
     placeholder= '%s'
     placeholders= ', '.join(placeholder for unused in rp_array)
     SQL=string.replace(SQL, 'XXXX', placeholders)

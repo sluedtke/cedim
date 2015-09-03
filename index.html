@@ -1,36 +1,252 @@
-<html>
-<head>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Rapid flood event explorer</title>
+        
+        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+    
+        <!-- Bootstrap -->
+        <!-- Latest compiled and minified CSS / JS-->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 
-	<title> Rapid flood event analysis in Germany </title>
+        <!-- data range picker -->
+        <!-- Include Date Range Picker -->
+        <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+        <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
 
-	<!-- Load the ExtJS stylesheet -->
-	<link rel="stylesheet" type="text/css"
-	href="javascript/ext-4.2.1.883/resources/ext-theme-gray/ext-theme-gray-all.css">
-	<!-- Load ExtJS from their CDN, local versions work also -->
-	<script type="text/javascript"
-	src="./javascript/ext-4.2.1.883/ext-debug.js"></script>
-	<!-- Load OpenLayers, custom builds may even be better -->
-	<script src="http://openlayers.org/api/2.13.1/OpenLayers.js"></script>
-	<script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.3.0"></script>
+        <!-- OL3 -->
+        <link rel="stylesheet" href="http://openlayers.org/en/v3.8.2/css/ol.css" type="text/css">
+        <script src="http://openlayers.org/en/v3.8.2/build/ol.js"></script>
+        
 
-	<script type="text/javascript" src="./javascript/loader.js"></script>
-	<script src="./javascript/colorbrewer.js" ></script>
+        <!-- custom css styles -->
+        <link rel="stylesheet" href="css/default.css" type="text/css">
 
-	<script type="text/javascript" src="./javascript/base_layers.js"></script>
-	<script src="./javascript/layer_styles.js" ></script>
-	<script type="text/javascript" src="./javascript/extjs_comp.js"></script>
-	<script type="text/javascript" src="./javascript/postgis_stores.js"></script>
-	<link rel="stylesheet" type="text/css" href="./css_base/style_base.css">
+    
+    </head>
+    <body>
+
+<!-- ---------------------------------------------------------------------------------- -->
+<!-- Navigation bar   -->
+<!-- ---------------------------------------------------------------------------------- -->
+
+        <nav class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+                <div id="navbar" class="collapse navbar-collapse">
+                    <ul class="nav navbar-nav">
+                        <li class="active"><a href="#">Rapid flood event explorer</a></li>
+                        <li><a href="https://github.com/sluedtke/cedim">See Code on Github</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    
+<!-- ---------------------------------------------------------------------------------- -->
+<!-- Main container   -->
+<!-- ---------------------------------------------------------------------------------- -->
+
+        <div class="container-fluid">
+          <div class="row">
+
+            <!-- ---------------------------------------------------------------------------------- -->
+            <!-- Side bar   -->
+            <!-- ---------------------------------------------------------------------------------- -->
+
+            <div class="col-lg-2 sidebar" id="sidebar">
+              <ul class="nav nav-sidebar">
+                <div class="panel-group" id="accordion">
+                  <div class="panel panel-default">
+
+                    <div class="panel-heading">
+                      <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#map_selector">Layers</a>
+                      </h4>
+                    </div>
+
+                    <div id="map_selector" class="panel-collapse collapse in">
+                      <div class="panel-body">
+
+                        <li>Base layers</li>
+                        <ul class="inputs-list">
+                          <div class="checkbox">
+                            <label class="checkbox">
+                              <input type="checkbox" id="stamenvisibility" checked> Base info</input>
+                            </label>
+                          </div>
+                          <div class="checkbox">
+                            <label class="checkbox">
+                              <input type="checkbox" id="osmvisibility"> Openstreetmap</input>
+                            </label>
+                          </div>
+                        </ul>
+
+                        <li><span>Vectorlayers</span></li>
+                        <ul class="inputs-list">
+                          <div class="checkbox">
+                            <label class="checkbox">
+                              <input type="checkbox" id="waterwaysvisibility" checked> Waterways</input>
+                            </label>
+                          </div>
+                          <div class="checkbox">
+                            <label class="checkbox">
+                              <input type="checkbox" id="gaugesvisibility" checked> Gauges</input>
+                            </label>
+                          </div>
+                        </ul>
+
+                      </div>
+                    </div>
+
+ 
+                    <div class="panel-heading">
+                      <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#map_selector" href="#date_selector">Date range </a>
+                      </h4>
+                    </div>
+                    <div id="date_selector" class="panel-collapse collapse in">
+                      <div class="panel-body">
+                          <input type="text" name="daterange" id="daterange"/>
+                      </div>
+                    </div>
+
+                    <div class="panel-heading">
+                      <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#date_selector" href="#rp_selector">Return periods </a>
+                      </h4>
+                    </div>
+                    <div id="rp_selector" class="panel-collapse collapse in">
+                      <div class="panel-body">
+                        <div class="row">
+                          <form>
+                            <div class="col-lg-4 rp-class">
+                              <label class="checkbox">
+                                <input type="checkbox" name="rp" value=1> 1</input>
+                              </label>
+                              <label class="checkbox">
+                                <input type="checkbox" name="rp" value=1.5> 1.5</input>
+                              </label>
+                              <label class="checkbox">
+                                <input type="checkbox" name="rp" value=2 checked> 2</input>
+                              </label>
+                            </div>
+                            <div class="col-lg-4 rp-class">
+                              <label class="checkbox">
+                                <input type="checkbox" name="rp" value=5> 5</input>
+                              </label>
+                              <label class="checkbox">
+                                <input type="checkbox" name="rp" value=10> 10</input>
+                              </label>
+                              <label class="checkbox">
+                                <input type="checkbox" name="rp" value=25> 25</input>
+                              </label>
+                            </div>
+                            <div class="col-lg-4 rp-class">
+                              <label class="checkbox">
+                                <input type="checkbox" name="rp" value=50 checked> 50</input>
+                              </label>
+                              <label class="checkbox">
+                                <input type="checkbox" name="rp" value=75 checked> 75</input>
+                              </label>
+                              <label class="checkbox">
+                                <input type="checkbox" name="rp" value=100> 100</input>
+                              </label>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="panel-heading">
+                      <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#rp_selector" href="#ref_selector">Reference period </a>
+                      </h4>
+                    </div>
+                    <div id="ref_selector" class="panel-collapse collapse in">
+                        <div class="panel-body"> 
+                            <div class="btn-group">
+                                <i class="dropdown-arrow dropdown-arrow-inverse"></i>
+                                <button class="btn btn-primary selection">Select</button>
+                                <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu" id="ref_list">
+                                    <li><a href="#" data-value="1954">1954</a></li>
+                                    <li><a href="#" data-value="2002">2002</a></li>
+                                    <li><a href="#" data-value="2013">2013</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel-heading">
+                      <a data-toggle="collapse" data-parent="#ref_selector" href="#submit"></a>
+                    </div>
+                    <div id="submit" class="panel-collapse collapse in">
+                      <div class="panel-body"> 
+                          <button type="button" class="btn btn-success" id="submit_btn">Spin the wheel</button>  
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </ul>
+            </div>
+
+<!-- ---------------------------------------------------------------------------------- -->
+<!-- Current map view   -->
+<!-- ---------------------------------------------------------------------------------- -->
+
+                <div class="col-lg-5">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                               Current situation 
+                            </h4>
+                        </div>
+                            <div id='map_ud' style="height:100%">
+                            </div>
+                    </div>
+                </div> 
+
+<!-- ---------------------------------------------------------------------------------- -->
+<!-- Reference map view   -->
+<!-- ---------------------------------------------------------------------------------- -->
+
+                <div class="col-lg-5">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" id="map_hist_title">
+                            <h4 class="panel-title">
+                                Historic flood
+                            </h4>
+                        </div>
+                            <div id='map_hist' style="height:100%">
+                            </div>
+                    </div>
+                </div> 
 
 
-</head>
-<body>
-	<div id="container">
-		<div id="header">
-			<img src="png/cedim_logo.png" alt="cedim logo"  width="140" >
-			<h1>Flood event explorer</h1>
-		</div>
-		<div id="mainpanel" ></div>
-	</div>
-</body>
-</html>
+          </div>
+        </div>
+
+       <script src='javascript/app.js'></script>
+       <script src='javascript/date_ref_selector.js'></script>
+       <script src="javascript/colorbrewer.js" ></script>
+    </body>
+  </html>
+
