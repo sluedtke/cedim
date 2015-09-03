@@ -3,14 +3,13 @@
  */
 
 /**
- * Create layers for the OL map
+ * Create background layers for the OL map, more to come
  */
-var layers = []  
 
 var osm = new ol.layer.Tile({
     visible: false,
     source: new ol.source.XYZ({
-         url: 'http://{a-c}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png'
+        url: 'http://{a-c}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png'
     })
 });
 
@@ -21,65 +20,68 @@ var stamen = new ol.layer.Tile({
     })
 });
 
-
+// Loading the data from the tileserver, who to set up the tile server, see the wiki for hydro27
+// river network
+//
 var waterways = new ol.layer.Vector({
     name: 'waterways',
-        source: new ol.source.TileVector({
-            format: new ol.format.TopoJSON({
-                defaultProjection: 'EPSG:3857'
-            }),
-            projection: 'EPSG:3857',
-            tileGrid: ol.tilegrid.createXYZ({
-                minZoom: 0,
-                maxZoom: 19
-            }),
-            url: 'http://localhost:8080/streams/{z}/{x}/{y}.topojson'
+    source: new ol.source.TileVector({
+        format: new ol.format.TopoJSON({
+            defaultProjection: 'EPSG:3857'
         }),
-        style: (function() {
-            return function(feature, resolution) {
-                return [new ol.style.Style({
-                    stroke: new ol.style.Stroke({
-                        color: '#99B3CC',
-                        width: 2
-                    }),
+        projection: 'EPSG:3857',
+        tileGrid: ol.tilegrid.createXYZ({
+            minZoom: 0,
+            maxZoom: 19
+        }),
+        url: 'http://localhost:8080/streams/{z}/{x}/{y}.topojson'
+    }),
+    style: (function() {
+        return function(feature, resolution) {
+            return [new ol.style.Style({
+                stroke: new ol.style.Stroke({
+                    color: '#99B3CC',
+                    width: 2
+                }),
 
-                })];
-            };
-        })()
+            })];
+        };
+    })()
 });
 
+// gauges
+//
 var gauge_style = new ol.style.Style({
     image: new ol.style.Circle({
-      radius: 3,
-      fill: new ol.style.Fill({
-        color: 'rgba(255, 153, 0, 0.4)'
-      })
+        radius: 3,
+        fill: new ol.style.Fill({
+            color: 'rgba(255, 153, 0, 0.4)'
+        })
     })
 })
 
-// var gauges = new ol.layer.Image({
 var gauges = new ol.layer.Vector({
     name: 'gauges',
-        source: new ol.source.TileVector({
-            format: new ol.format.TopoJSON({
-                defaultProjection: 'EPSG:3857'
-            }),
-            projection: 'EPSG:3857',
-            tileGrid: ol.tilegrid.createXYZ({
-                minZoom: 0,
-                maxZoom: 9 
-            }),
-            url: 'http://localhost:8080/gauges/{z}/{x}/{y}.topojson'
+    source: new ol.source.TileVector({
+        format: new ol.format.TopoJSON({
+            defaultProjection: 'EPSG:3857'
         }),
-        style: gauge_style
+        projection: 'EPSG:3857',
+        tileGrid: ol.tilegrid.createXYZ({
+            minZoom: 0,
+            maxZoom: 9 
+        }),
+        url: 'http://localhost:8080/gauges/{z}/{x}/{y}.topojson'
+    }),
+    style: gauge_style
 });
 
-
-
+// add layers to empty array
+var layers = []  
 layers.push(stamen, osm, waterways, gauges);
 
 /**
- * Create the OL map with the given layers and interactions
+ * Create maps with layers an sync view
  */
 map_ud = new ol.Map({
     renderer: 'canvas',
@@ -100,11 +102,6 @@ map_ud = new ol.Map({
     })
 });
 
-map_ud.on('singleclick', function(evt){
-    var coord = evt.coordinate;
-	var transformed_coordinate = ol.proj.transform(coord, "EPSG:900913", "EPSG:4326");
-})
-
 var map_hist = new ol.Map({
     renderer: 'canvas',
     layers: [new ol.layer.Group({
@@ -115,11 +112,6 @@ var map_hist = new ol.Map({
 
     view: map_ud.getView(),
 
-    // view: new ol.View({
-    //     center: [847316.1308811717, 6793531.649854118],
-    //     zoom: 7,
-    //     minZoom: 5
-    // }),
     controls: ol.control.defaults({
         attributionOptions: ({
             collapsible: true 
